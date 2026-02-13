@@ -16,7 +16,7 @@ from ai_analyzer import analyze_with_ai, deep_analyze_phrase, get_client
 from knowledge_base import FINDINGS
 
 DEBIT_OPTIMAL = FINDINGS["prosodie"]["debit_optimal_mots_min"]  # 175 mots/min
-MAX_AI_CALLS = 10  # Quota par session (analyses + chirurgies)
+MAX_AI_CALLS = 5  # Quota par session (analyses + chirurgies)
 
 
 def _word_count(text):
