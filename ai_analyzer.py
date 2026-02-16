@@ -87,6 +87,17 @@ Remplis le champ "score_incarnation" pour CHAQUE phrase. En cas de doute entre F
 
 Si une phrase est bonne sur tous ces critères, mets verdict "ok" avec des champs vides (sauf score_incarnation, toujours rempli).
 
+MANDAT E — NOTE DE RELECTURE :
+Rédige une note de relecture comme un rédacteur en chef pressé qui rend sa copie annotée.
+Règles :
+- 4 à 6 phrases MAX, style direct, tutoiement.
+- Commence par le problème le plus urgent.
+- Cite les numéros de phrases concernées (ex: "Ta phrase 3 est un mur de béton").
+- Donne une direction concrète pour chaque problème ("coupe en deux", "remplace le chiffre par une comparaison", "attaque par l'image").
+- Termine par ce qui fonctionne bien (s'il y a quelque chose).
+- NE RÉPÈTE PAS les alertes mécaniques déjà signalées. Concentre-toi sur la structure, le rythme, les enchaînements, la dynamique globale.
+Remplis le champ "note_relecture".
+
 MANDAT B — REPÉRAGE D'ASSERTIONS (fond) :
 Identifie TOUTE assertion vérifiable : chiffres précis, noms propres, dates, lieux, faits attribués, citations. Pour chaque assertion, note l'extrait exact et ce que le journaliste devrait vérifier avant antenne.
 Tu ne fais PAS de fact-checking. Tu LISTES ce qui mérite vérification.
@@ -97,7 +108,7 @@ Appuie tes analyses de forme sur les études ci-dessous quand c'est pertinent. C
 {SCIENCE_CONTEXT}
 
 Réponds UNIQUEMENT en JSON valide :
-{{"zones": {{{zones_schema}}}, "claims": [{{"extrait":"...","zone":"lancement|papier|qr","type":"chiffre|nom_propre|date|fait|citation","note":"..."}}], "coherence": "... ou null", "impression_generale": "..."}}"""
+{{"note_relecture": "...", "zones": {{{zones_schema}}}, "claims": [{{"extrait":"...","zone":"lancement|papier|qr","type":"chiffre|nom_propre|date|fait|citation","note":"..."}}], "coherence": "... ou null", "impression_generale": "..."}}"""
 
 
 def _build_user_message(

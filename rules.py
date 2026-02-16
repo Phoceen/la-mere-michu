@@ -64,7 +64,7 @@ def _length(s: str) -> list[Alert]:
         )]
     if n > _len["seuil_mots_warning"]:
         return [Alert(
-            "Un peu long", f"{n} mots — au-delà de 20 mots, la boucle phonologique (~{_mem['boucle_phonologique_sec']}s) peine à suivre (Baddeley).",
+            "Un peu long", f"{n} mots — au-delà de 25 mots, la boucle phonologique (~{_mem['boucle_phonologique_sec']}s) peine à suivre (Baddeley).",
             "warning", "Baddeley & Hitch (1974)"
         )]
     return []

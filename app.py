@@ -611,6 +611,7 @@ if "analysis" in st.session_state:
     ai_claims = (data["ai_result"] or {}).get("claims", [])
     ai_coherence = (data["ai_result"] or {}).get("coherence")
     ai_general = (data["ai_result"] or {}).get("impression_generale", "")
+    ai_note = (data["ai_result"] or {}).get("note_relecture", "")
 
     # Pré-calculer les formes IA par zone (utilisées partout)
     ai_lancement = ai_zones.get("lancement", {}).get("forme", []) if data["has_lancement"] else []
@@ -645,40 +646,50 @@ if "analysis" in st.session_state:
             unsafe_allow_html=True,
         )
 
-    # Impression générale
-    if ai_general:
-        st.info(f"**Impression générale :** {ai_general}")
+    # =============================================
+    # COUCHE 1 — Note de relecture (ce qu'on lit en premier)
+    # =============================================
+    if ai_note:
+        st.markdown(
+            f'<div style="background:rgba(99,102,241,0.07);border-left:4px solid #6366f1;'
+            f'padding:16px 20px;border-radius:8px;margin:8px 0 20px;'
+            f'font-size:1.05rem;line-height:1.7;">'
+            f'{ai_note}</div>',
+            unsafe_allow_html=True,
+        )
 
-    # Contexte complet pour les analyses approfondies
+    # Cohérence lancement / papier (toujours visible, couche 1)
+    if ai_coherence and data["has_lancement"] and data["has_papier"]:
+        st.markdown(
+            f'<div style="background:rgba(245,158,11,0.07);border-left:4px solid #f59e0b;'
+            f'padding:12px 16px;border-radius:8px;margin:8px 0 16px;'
+            f'font-size:0.95rem;line-height:1.6;">'
+            f'**Cohérence lancement / papier** — {ai_coherence}</div>',
+            unsafe_allow_html=True,
+        )
+
+    # Assertions à vérifier (toujours visible, couche 1)
+    if ai_claims:
+        st.markdown("### Assertions à vérifier")
+        st.caption("Ces éléments factuels méritent une vérification avant antenne.")
+        render_claims(ai_claims)
+
+    # =============================================
+    # COUCHE 2 — Détail phrase par phrase (expander)
+    # =============================================
     full_context = ""
     if data["lancement_text"]:
         full_context += data["lancement_text"]
     if data["papier_text"]:
         full_context += "\n" + data["papier_text"]
 
-    # Résultats par zone — FORME
-    if data["has_lancement"]:
-        render_zone("Lancement", data["lancement_text"], data["lancement_results"], ai_lancement, prefix="L")
-        if has_api:
-            render_aide_moi(data["lancement_results"], ai_lancement, "L", full_context, "lancement")
+    with st.expander("Détail phrase par phrase", expanded=False):
+        if data["has_lancement"]:
+            render_zone("Lancement", data["lancement_text"], data["lancement_results"], ai_lancement, prefix="L")
+            if has_api:
+                render_aide_moi(data["lancement_results"], ai_lancement, "L", full_context, "lancement")
 
-    if data["has_papier"]:
-        render_zone(data["papier_type"], data["papier_text"], data["papier_results"], ai_papier, prefix="P")
-        if has_api:
-            render_aide_moi(data["papier_results"], ai_papier, "P", full_context, data["papier_type"])
-
-    # Cohérence
-    if ai_coherence and data["has_lancement"] and data["has_papier"]:
-        st.markdown("### Cohérence lancement / papier")
-        st.markdown(
-            f'<div style="background:rgba(99,102,241,0.1);border-left:3px solid #6366f1;'
-            f'padding:12px 16px;border-radius:8px;margin:8px 0;">'
-            f'{ai_coherence}</div>',
-            unsafe_allow_html=True,
-        )
-
-    # Assertions à vérifier — FOND
-    if ai_claims:
-        st.markdown("### Assertions à vérifier")
-        st.caption("Ces éléments factuels méritent une vérification avant antenne.")
-        render_claims(ai_claims)
+        if data["has_papier"]:
+            render_zone(data["papier_type"], data["papier_text"], data["papier_results"], ai_papier, prefix="P")
+            if has_api:
+                render_aide_moi(data["papier_results"], ai_papier, "P", full_context, data["papier_type"])

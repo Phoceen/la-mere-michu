@@ -26,8 +26,8 @@ FINDINGS = {
         ],
     },
     "longueur_phrase": {
-        "seuil_mots_warning": 20,
-        "seuil_mots_error": 25,
+        "seuil_mots_warning": 25,
+        "seuil_mots_error": 30,
         "seuil_info_max": 4,
         "sources": [
             {"ref": "Cowan (2001)", "finding": "3-5 chunks max en mémoire de travail → une phrase radio ne devrait pas dépasser 3-4 unités d'information."},
