@@ -610,7 +610,6 @@ if "analysis" in st.session_state:
     ai_zones = (data["ai_result"] or {}).get("zones", {})
     ai_claims = (data["ai_result"] or {}).get("claims", [])
     ai_coherence = (data["ai_result"] or {}).get("coherence")
-    ai_general = (data["ai_result"] or {}).get("impression_generale", "")
     ai_note = (data["ai_result"] or {}).get("note_relecture", "")
 
     # Pré-calculer les formes IA par zone (utilisées partout)
