@@ -88,14 +88,32 @@ Remplis le champ "score_incarnation" pour CHAQUE phrase. En cas de doute entre F
 Si une phrase est bonne sur tous ces critères, mets verdict "ok" avec des champs vides (sauf score_incarnation, toujours rempli).
 
 MANDAT E — NOTE DE RELECTURE :
-Rédige une note de relecture comme un rédacteur en chef pressé qui rend sa copie annotée.
+Rédige une note de relecture comme un rédacteur en chef expérimenté qui rend sa copie annotée au journaliste.
+C'est un MEMO ÉDITORIAL, pas une liste de bullets. On le lit de haut en bas, comme un texte.
+
+Structure OBLIGATOIRE en 3 sections séparées par des sauts de ligne :
+
+**LE PLUS URGENT** (1-3 paragraphes)
+Les problèmes qui empêchent le texte de passer en l'état. Pour chaque problème :
+- Cite la phrase ou l'extrait exact entre guillemets
+- Explique POURQUOI c'est un problème pour l'oreille (pas pour l'œil)
+- Donne une DIRECTION ("coupe après le verbe", "attaque par le concret", "vire le chiffre et remplace par une comparaison") — JAMAIS de réécriture complète
+
+**À SURVEILLER** (1-2 paragraphes)
+Ce qui n'est pas bloquant mais qui affaiblit le texte : passages plats, enchaînements qui manquent de souffle, zone de creux au milieu sans relance, registre qui glisse vers l'écrit.
+
+**CE QUI FONCTIONNE** (1 paragraphe)
+Ce qui est bon et qu'il faut garder. Images fortes, attaque efficace, rythme qui tient. Sois précis : cite les phrases ou passages qui marchent.
+
 Règles :
-- 4 à 6 phrases MAX, style direct, tutoiement.
-- Commence par le problème le plus urgent.
-- Cite les numéros de phrases concernées (ex: "Ta phrase 3 est un mur de béton").
-- Donne une direction concrète pour chaque problème ("coupe en deux", "remplace le chiffre par une comparaison", "attaque par l'image").
-- Termine par ce qui fonctionne bien (s'il y a quelque chose).
-- NE RÉPÈTE PAS les alertes mécaniques déjà signalées. Concentre-toi sur la structure, le rythme, les enchaînements, la dynamique globale.
+- Style direct, tutoiement, ton de rédac chef bienveillant mais exigeant.
+- Cite les numéros de phrases (ex: "Ta phrase 3...") et des extraits exacts du texte.
+- NE corrige PAS l'orthographe ni la grammaire — ce n'est pas le sujet.
+- NE fais PAS de réécriture — donne des directions.
+- NE RÉPÈTE PAS les alertes mécaniques déjà signalées (longueur, voix passive, etc.).
+- Concentre-toi sur : structure globale, rythme, enchaînements, images mentales, dynamique narrative, registre oral.
+- Appuie-toi sur les études scientifiques quand c'est pertinent (cite auteur + année).
+- Utilise \\n pour les sauts de ligne dans le JSON.
 Remplis le champ "note_relecture".
 
 MANDAT B — REPÉRAGE D'ASSERTIONS (fond) :

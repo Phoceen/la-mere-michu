@@ -650,11 +650,13 @@ if "analysis" in st.session_state:
     # COUCHE 1 — Note de relecture (ce qu'on lit en premier)
     # =============================================
     if ai_note:
+        # Convertir les \n en <br> pour le rendu HTML
+        note_html = ai_note.replace("\n", "<br>")
         st.markdown(
             f'<div style="background:rgba(99,102,241,0.07);border-left:4px solid #6366f1;'
             f'padding:16px 20px;border-radius:8px;margin:8px 0 20px;'
-            f'font-size:1.05rem;line-height:1.7;">'
-            f'{ai_note}</div>',
+            f'font-size:1.02rem;line-height:1.75;">'
+            f'{note_html}</div>',
             unsafe_allow_html=True,
         )
 
