@@ -1,0 +1,57 @@
+%%{init: {'theme': 'dark', 'themeVariables': {'primaryColor': '#6366f1', 'primaryTextColor': '#fff', 'primaryBorderColor': '#818cf8', 'lineColor': '#94a3b8', 'secondaryColor': '#1e293b', 'tertiaryColor': '#0f172a', 'fontSize': '14px'}}}%%
+
+flowchart TB
+    subgraph INPUT["ENTRÉE"]
+        direction LR
+        L["Lancement\n(optionnel)"]
+        P["Papier / Q-R\n(optionnel)"]
+    end
+
+    subgraph KB["BASE SCIENTIFIQUE — knowledge_base.py"]
+        direction LR
+        K1["Mémoire de travail\nCowan · Miller · Baddeley"]
+        K2["Charge cognitive\nSweller · Baker"]
+        K3["Double codage\nPaivio · Binder"]
+        K4["Prosodie & attention\nRodero · Fedorenko"]
+    end
+
+    subgraph ETAGE1["ÉTAGE 1 — RÈGLES MÉCANIQUES  ⚙️  rules.py"]
+        direction LR
+        R1["Longueur\n> 25 mots"]
+        R2["Voix passive"]
+        R3["Densité chiffres\n> 2 / phrase"]
+        R4["Mots complexes\n> 4 syllabes"]
+        R5["Cacophonies"]
+        R6["Tournures\nécrites"]
+        R7["Adverbes\nfaibles"]
+    end
+
+    subgraph ETAGE2["ÉTAGE 2 — ANALYSE IA  🧠  ai_analyzer.py → Claude"]
+        direction TB
+        MA["Mandat A\nForme orale\nrythme · souffle · fluidité"]
+        MD["Mandat D\nIncarnation\nVIF · FLOU · GRIS"]
+        ME["Mandat E\nNote de relecture\nurgent · surveiller · OK"]
+        MB["Mandat B\nAssertions\nchiffres · noms · dates · faits"]
+        MC["Mandat C\nCohérence\nlancement ↔ papier"]
+    end
+
+    subgraph OUTPUT["SORTIE — app.py"]
+        direction TB
+        O1["🎯 Verdict global\nphrases prêtes · à retravailler · problématiques"]
+        O2["📝 Note de relecture\nmémo éditorial structuré"]
+        O3["⚠️ Assertions à vérifier\nfond factuel"]
+        O4["🔍 Détail phrase par phrase\nheatmap · tooltips · chirurgie"]
+    end
+
+    INPUT --> ETAGE1
+    KB -. "seuils & sources" .-> ETAGE1
+    KB -. "contexte scientifique" .-> ETAGE2
+    ETAGE1 -- "texte + résumé alertes\n(ne pas re-signaler)" --> ETAGE2
+    ETAGE1 --> OUTPUT
+    ETAGE2 --> OUTPUT
+
+    style INPUT fill:#1e293b,stroke:#6366f1,stroke-width:2px
+    style KB fill:#0f172a,stroke:#8b5cf6,stroke-width:2px,stroke-dasharray: 5 5
+    style ETAGE1 fill:#1e293b,stroke:#f59e0b,stroke-width:2px
+    style ETAGE2 fill:#1e293b,stroke:#6366f1,stroke-width:2px
+    style OUTPUT fill:#1e293b,stroke:#10b981,stroke-width:2px

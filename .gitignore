@@ -6,3 +6,4 @@ venv/
 .venv/
 .claude/
 knowledge/etudes/
+.DS_Store
