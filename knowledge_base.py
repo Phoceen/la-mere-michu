@@ -284,10 +284,12 @@ def get_prompt_context(themes: list[str] | None = None, include_sondage: bool = 
         lines.append(f"## {theme_label}")
         for src in resolve_sources(theme_data):
             lines.append(f"- {src['ref']} : {src['finding']}")
-        # Ajouter les seuils numériques
+        # Ajouter les seuils numériques, liés aux seules sources citables du thème
+        refs = " ou ".join(s["ref"] for s in resolve_sources(theme_data))
         for key, val in theme_data.items():
             if key not in ("sources",) and not key.startswith("_"):
-                lines.append(f"  → Seuil : {key} = {val}")
+                lines.append(f"  → Seuil : {key} = {val} — citer uniquement : {refs} "
+                             "(aucune autre étude, même d'un thème voisin)")
         lines.append("")
 
     # Données du sondage compréhension (résumé compact pour généralisation)
