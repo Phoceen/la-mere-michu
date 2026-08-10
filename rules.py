@@ -44,8 +44,21 @@ def _syllables(word: str) -> int:
 
 
 def split_sentences(text: str) -> list[str]:
-    raw = re.split(r'(?<=[.!?])\s+', text.strip())
-    return [s.strip() for s in raw if s.strip()]
+    """Découpe en unités de souffle, pas seulement en phrases grammaticales.
+
+    Les journalistes radio ponctuent rarement de façon classique : ils marquent
+    les respirations avec /, //, ... ou de simples retours à la ligne. Toutes
+    ces marques sont traitées comme des fins d'unité. Le texte original est
+    préservé (rien n'est réécrit), seuls les / servant de séparateurs — jamais
+    ceux collés comme dans « km/h » — sont consommés.
+    """
+    raw = re.split(
+        r"(?<=[.!?…])\s+"      # ponctuation classique (couvre aussi .. et ...)
+        r"|\s*\n+\s*"          # retour à la ligne = nouvelle unité de souffle
+        r"|\s+/+\s*|\s*/+\s+", # / ou // entourés d'au moins un espace
+        text.strip(),
+    )
+    return [s.strip() for s in raw if s.strip() and re.search(r"\w", s)]
 
 
 # --- Règles enrichies par les études ---
@@ -109,7 +122,7 @@ def _is_round(num_str: str) -> bool:
     cleaned = re.sub(r"[\s.,]", "", num_str)
     if not cleaned.isdigit():
         return False
-    if len(cleaned) == 1:
+    if len(cleaned) <= 2:  # « 25 ans », « 8 à 9 mois » : se disent sans effort
         return True
     return cleaned.endswith("00") or cleaned.endswith("000")
 
