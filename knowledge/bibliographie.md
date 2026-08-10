@@ -78,8 +78,8 @@ Les sources A et B sont encodées dans `knowledge_base.py` (dict `BIBLIO`) et al
 
 ## Tier B — Données institutionnelles
 
-- **Sondage de compréhension du vocabulaire journalistique (2025).** ⚠️ *Document interne, non versionné.* Données et enseignements encodés dans `sondage_prive.py` (hors git, disponible en local uniquement) — alimente le détecteur de jargon.
-- **OCDE — PIAAC (2024).** *Évaluation internationale des compétences des adultes.* — 28% des adultes français au niveau ≤1 en littératie (+6 pts vs 2012) ; 48% des 55-65 ans en difficulté. Difficultés écrit/oral fortement corrélées. 🇫🇷
+- **Sondage de compréhension du vocabulaire journalistique (2025).** ⚠️ *Document interne, non versionné.* Données et enseignements encodés dans `sondage_prive.py` (hors git, disponible en local uniquement) — alimente le détecteur de jargon. *Limite : mesure au niveau du **mot isolé** — la compréhension de la phrase, du papier ou du passage antenne entiers reste à évaluer (voir angles morts ci-dessous).*
+- **OCDE — PIAAC (2024).** *Survey of Adult Skills 2023 — note pays France.* — 28% des adultes français au niveau ≤1 en littératie (+6 pts vs 2012) ; 48% des 55-65 ans en difficulté. Difficultés écrit/oral fortement corrélées. 🇫🇷 📄 `etudes/54`
 - **Médiatrice de Radio France (2022-2026).** Comptes rendus des courriers d'auditeurs sur la langue. — Plainte n°1 : anglicismes non nécessaires (casting, think tank, storytelling, impacter...) ; puis appauvrissement lexical et relâchement syntaxique. → fonde la liste `ANGLICISMES` 🇫🇷
 - **Olsen, M.-J. — Cégep de Jonquière (2024).** *La langue dans les radios québécoises.* 40 matinales, 134 grilles d'écoute, 65 professionnels. — Anglicismes dans 40/40 émissions ; motif n°1 : « se rapprocher de l'auditeur » ; 60% des pros perçoivent une dégradation. 📄 `etudes/49`
 - **Arcom (2025).** *Tendances audio et vidéo 2025 (synthèse).* — La radio en direct reste le service audio le plus consommé (78%) ; écoute croissante en mobilité, conditions acoustiques dégradées. 🇫🇷 📄 `etudes/51`

@@ -289,7 +289,12 @@ def get_prompt_context() -> str:
         lines.append("## DONNÉES MESURÉES — COMPRÉHENSION DU VOCABULAIRE JOURNALISTIQUE")
         lines.append(f"{SONDAGE_REF} : taux de compréhension réels de termes de JT.")
         lines.append(f"CONFIDENTIALITÉ : cite cette étude UNIQUEMENT sous la forme « {SONDAGE_REF} » — "
-                     "jamais de date, d'échantillon ou d'origine plus précis.")
+                     "jamais d'échantillon, de mois ou d'origine plus précis.")
+        lines.append("LIMITE MÉTHODOLOGIQUE : ces taux sont mesurés sur des TERMES ISOLÉS. "
+                     "Quand tu t'appuies dessus, recommande systématiquement de vérifier la compréhension "
+                     "à l'échelle supérieure : la phrase entière, le papier, le passage antenne complet. "
+                     "Un terme opaque peut passer si la phrase l'explicite ; une phrase de termes simples "
+                     "peut rester incompréhensible.")
         for insight in JARGON_INSIGHTS:
             lines.append(f"- {insight}")
         lines.append("Les 35 termes testés sont déjà détectés mécaniquement. Ton rôle : GÉNÉRALISE — "

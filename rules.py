@@ -253,13 +253,14 @@ def _jargon(s: str) -> list[Alert]:
         alerts.append(Alert(
             "Jargon opaque",
             f'{", ".join(hard)} — compris par moins d\'un Français sur deux (taux mesurés). '
-            f"Explicitez le terme ou remplacez-le par du concret.",
+            f"Explicitez le terme ou remplacez-le par du concret. "
+            f"NB : taux mesuré sur le mot isolé — vérifiez aussi que la phrase entière reste compréhensible.",
             "warning", _SONDAGE_SRC
         ))
     if soft:
         alerts.append(Alert(
             "Jargon à expliciter",
-            f'{", ".join(soft)} — un gros tiers des Français ne comprend pas ce terme. '
+            f'{", ".join(soft)} — un gros tiers des Français ne comprend pas ce terme (mesure sur le mot isolé). '
             f"Une incise d'explication suffit souvent (« l'OMS, l'agence de l'ONU pour la santé »).",
             "info", _SONDAGE_SRC
         ))

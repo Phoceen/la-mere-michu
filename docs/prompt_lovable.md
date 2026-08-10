@@ -78,6 +78,26 @@ rédaction — pas de gadgets.
 
 ---
 
+## 📦 Checklist — fichiers à donner à Lovable
+
+### ✅ À téléverser (corpus RAG)
+- [ ] Les PDF d'études de `knowledge/etudes/` (01 à 54) — **sauf tout document interne**
+- [ ] `knowledge/bibliographie.md` — donne à l'app les métadonnées (tiers A/B, auteurs, années) pour étiqueter les chunks
+- [ ] `knowledge/README.md`
+
+### 📋 À copier-coller dans le chat Lovable (référence de construction)
+- [ ] Le prompt système d'`ai_analyzer.py` (les 5 mandats) — c'est le cœur métier à reproduire
+- [ ] Le dict `ANGLICISMES` de `knowledge_base.py` (liste + équivalents français)
+- [ ] Les seuils de `FINDINGS` dans `knowledge_base.py` (25/30 mots, 2 chiffres, etc.)
+- [ ] La section « REX du POC » de `BILAN.md` (session 5) — pour que Lovable comprenne le pourquoi des choix design
+
+### 🚫 À ne JAMAIS donner à Lovable
+- [ ] `sondage_prive.py` et l'étude interne de compréhension des termes (PDF)
+- [ ] `.env` / clé API Anthropic (à saisir uniquement dans les secrets backend de Lovable)
+- [ ] Tout document estampillé interne ou non trouvable publiquement sur Google
+
+---
+
 ## ⚠️ Consignes de sécurité (à respecter, hors prompt)
 
 1. **NE JAMAIS téléverser dans Lovable** l'étude interne de compréhension des termes
