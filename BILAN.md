@@ -1,4 +1,4 @@
-# La mère Michu — Bilan & Archives
+# Stabilo — Bilan & Archives
 
 ## Résumé du projet
 
@@ -6,8 +6,8 @@
 
 Aider les journalistes radio à écrire des textes qui passent mieux à l'oreille. Pas un correcteur orthographique, pas un réécriveur automatique — un relecteur exigeant qui pointe ce qui ne fonctionne pas à l'oral et explique *pourquoi*, études scientifiques à l'appui.
 
-- **Repo** : https://github.com/Phoceen/la-mere-michu
-- **Live** : https://la-mere-michu.streamlit.app/
+- **Repo** : https://github.com/Phoceen/stabilo
+- **Live** : https://la-mere-michu.streamlit.app/ *(URL à renommer dans la console Streamlit Cloud — dernier vestige de l'ancien nom)*
 - **Stack** : Streamlit + Claude API (Sonnet 4.5) + Python 3.12
 - **Quota** : 5 appels IA max par session
 
@@ -102,7 +102,7 @@ Diagramme complet : voir `architecture.mmd` (ouvrir dans mermaid.live).
 ### Session 3 — Déploiement + UX overhaul
 - Déploiement Streamlit Cloud (bridge st.secrets → os.environ)
 - Rate limiter (5 appels IA / session)
-- GitHub repo créé (Phoceen/la-mere-michu)
+- GitHub repo créé
 - **Feedback utilisateur post-test** : trop d'infos, pas de hiérarchie, phrase-par-phrase écrasant
 - Seuils assouplis (20→25 warning, 25→30 error)
 - Ajout Mandat E (note de relecture) comme sortie principale
@@ -117,6 +117,24 @@ Diagramme complet : voir `architecture.mmd` (ouvrir dans mermaid.live).
 - **Nouveau détecteur : anglicismes** (~50 termes + équivalents français, formes conjuguées incluses) — fondé sur la plainte n°1 des auditeurs (Médiatrice)
 - **Nouveau détecteur : jargon institutionnel** — fondé sur un sondage interne de compréhension (données dans `sondage_prive.py`, hors git) : warning sous le seuil de compréhension majoritaire, info en zone intermédiaire. Couvre périphrases, métonymies, sigles et jargon judiciaire/économique/européen
 - **Prompt IA** : mandat de généralisation — Claude signale le jargon *similaire* non couvert par la liste mesurée ; interdiction de citer une source hors liste
+
+### Session 5 — POC validé, renommage Stabilo (août 2026)
+- **Le projet s'appelle désormais Stabilo** (ex-nom banni de partout : code, docs, repo GitHub renommé `Phoceen/stabilo`)
+- **Attribution anonymisée** de l'étude de compréhension : citée uniquement comme « étude réalisée en 2023 auprès d'un panel d'auditeurs » dans toute sortie visible
+- **Études francophones complètes** ajoutées dans `knowledge/etudes/` (48-53) : Simon 2013, Olsen 2024, EGJLLE 2024, Arcom 2025, Coupé 2019, Morillon 2025 — pour ne plus dépendre des résumés IA
+
+#### REX du POC (retours journalistes)
+- ✅ **Très utile** — architecture OK, retours du LLM très pertinents
+- ✅ Très bon pour trouver les faits à vérifier et proposer un langage plus visuel pour la radio
+- ✅ Structure de réponse validée : 3 niveaux **Urgent / À surveiller / Ce qui fonctionne**
+- ❌ **Design pas au point** → piste : dupliquer sur Lovable (interface monitorable : nombre d'utilisateurs, etc.)
+- ❌ **Le score « gamifie » inutilement** le processus d'écriture → à retirer probablement
+- 🎯 À préserver : repère immédiat des zones en question, retour phrase par phrase pour corriger sans tout refaire, le journaliste garde la main sur le style
+
+#### Backlog v2 (à itérer)
+1. **Temps 1** : cahier des charges de la refonte (design, suppression du score, monitoring)
+2. **Temps 2** : outil IA pour redesigner la maquette (Lovable — prompt dans `docs/prompt_lovable.md`)
+3. Renommer l'URL Streamlit (console Streamlit Cloud)
 
 ### Commits
 

@@ -1,4 +1,4 @@
-# Bibliographie — La mère Michu
+# Bibliographie — Stabilo
 
 Bibliographie de référence de l'outil. Chaque source est classée par **tier de fiabilité** :
 
@@ -48,7 +48,7 @@ Les sources A et B sont encodées dans `knowledge_base.py` (dict `BIBLIO`) et al
 - **Rodero, E. (2017).** *Pitch Range Variations Improve Cognitive Processing.* Human Communication Research. — Variations de hauteur tonale : +15-25% d'attention. 📄 `etudes/24`
 - **Rodero, E. (2022).** *Voice pitch and gestures.* 📄 `etudes/26`
 - **Rodero, E. (2023).** *Best Prosody for News.* Communication Research. — Style narratif (~175 mots/min) > style broadcast (~200 mots/min). 📄 `etudes/27`
-- **Simon, A. C., Auchlin, A. & Goldman, J.-P. (2013).** *Tendances prosodiques de la parole radiophonique.* Cahiers de praxématique n°61. — Prosodie de la parole radio **en français** ; l'accélération + montée mélodique comme signal d'alerte attentionnelle. 🇫🇷
+- **Simon, A. C., Auchlin, A. & Goldman, J.-P. (2013).** *Tendances prosodiques de la parole radiophonique.* Cahiers de praxématique n°61. — Prosodie de la parole radio **en français** ; l'accélération + montée mélodique comme signal d'alerte attentionnelle. 🇫🇷 📄 `etudes/48`
 - **Stephens et al. (2010).** *Neural coupling speaker-listener.* 📄 `etudes/17`
 - **Cuadrado et al. (2020).** *Arousing sound.* 📄 `etudes/20`
 
@@ -56,8 +56,8 @@ Les sources A et B sont encodées dans `knowledge_base.py` (dict `BIBLIO`) et al
 
 - **Rayner et al. (2008).** Psychophysiology. — Lecture : 200-400 mots/min ; compréhension orale : 125-160 mots/min.
 - **Leroy et al. (2019).** JAMIA. — Compréhension texte ≈ audio, rétention légèrement inférieure à l'écoute.
-- **Coupé, Oh, Dediu & Pellegrino (2019).** *Different languages, similar encoding efficiency.* Science Advances (CNRS / Univ. Lyon 2). — Toutes les langues transmettent ~39 bits/s : il existe un débit optimal de traitement cérébral. 🇫🇷
-- **Morillon et al. (2025).** *Décodage cérébral de la parole.* Science Advances (INSERM / Aix-Marseille Université). — Le cortex auditif suit en parallèle le rythme des syllabes et celui des phonèmes (vérifié dans 17 langues dont le français). Débit trop rapide ou articulation imprécise dégradent la compréhension. 🇫🇷
+- **Coupé, Oh, Dediu & Pellegrino (2019).** *Different languages, similar encoding efficiency.* Science Advances (CNRS / Univ. Lyon 2). — Toutes les langues transmettent ~39 bits/s : il existe un débit optimal de traitement cérébral. 🇫🇷 📄 `etudes/52`
+- **Morillon et al. (2025).** *The human auditory cortex concurrently tracks syllabic and phonemic timescales via acoustic spectral flux.* Science Advances (INSERM / Aix-Marseille Université). — Le cortex auditif suit en parallèle le rythme des syllabes et celui des phonèmes (vérifié dans 17 langues dont le français). Débit trop rapide ou articulation imprécise dégradent la compréhension. 🇫🇷 📄 `etudes/53`
 - **Étude time-compressed audio.** 📄 `etudes/40`
 
 ### Formats audio et engagement
@@ -72,7 +72,7 @@ Les sources A et B sont encodées dans `knowledge_base.py` (dict `BIBLIO`) et al
 
 - **Cahiers de praxématique n°61 (2013).** *Le discours radiophonique en pratiques.* Praxiling, Université Paul-Valéry Montpellier. — Première synthèse académique francophone : syntaxe de la phrase radio, prosodie, genres. Constat clé : les études de **réception** par les auditeurs sont quasi inexistantes.
 - **Charaudeau, P. (1984-).** *Le discours d'information médiatique.* Université Sorbonne Paris-Nord. — Théorie du « contrat de communication » : captation, crédibilisation, information. La clarté est une clause implicite du contrat avec l'auditeur.
-- **EGJLLE (2024).** *L'influence des anglicismes et emprunts étrangers sur le français.* — L'excès d'anglicismes non intégrés entrave la compréhension, surtout entre générations. 🇫🇷
+- **EGJLLE (2024).** *L'influence des anglicismes et emprunts étrangers sur le français.* — L'excès d'anglicismes non intégrés entrave la compréhension, surtout entre générations. 🇫🇷 📄 `etudes/50`
 
 ---
 
@@ -81,7 +81,8 @@ Les sources A et B sont encodées dans `knowledge_base.py` (dict `BIBLIO`) et al
 - **Sondage de compréhension du vocabulaire journalistique (2025).** ⚠️ *Document interne, non versionné.* Données et enseignements encodés dans `sondage_prive.py` (hors git, disponible en local uniquement) — alimente le détecteur de jargon.
 - **OCDE — PIAAC (2024).** *Évaluation internationale des compétences des adultes.* — 28% des adultes français au niveau ≤1 en littératie (+6 pts vs 2012) ; 48% des 55-65 ans en difficulté. Difficultés écrit/oral fortement corrélées. 🇫🇷
 - **Médiatrice de Radio France (2022-2026).** Comptes rendus des courriers d'auditeurs sur la langue. — Plainte n°1 : anglicismes non nécessaires (casting, think tank, storytelling, impacter...) ; puis appauvrissement lexical et relâchement syntaxique. → fonde la liste `ANGLICISMES` 🇫🇷
-- **Olsen, M.-J. — Cégep de Jonquière (2024).** *La langue dans les radios québécoises.* 40 matinales, 134 grilles d'écoute, 65 professionnels. — Anglicismes dans 40/40 émissions ; motif n°1 : « se rapprocher de l'auditeur » ; 60% des pros perçoivent une dégradation.
+- **Olsen, M.-J. — Cégep de Jonquière (2024).** *La langue dans les radios québécoises.* 40 matinales, 134 grilles d'écoute, 65 professionnels. — Anglicismes dans 40/40 émissions ; motif n°1 : « se rapprocher de l'auditeur » ; 60% des pros perçoivent une dégradation. 📄 `etudes/49`
+- **Arcom (2025).** *Tendances audio et vidéo 2025 (synthèse).* — La radio en direct reste le service audio le plus consommé (78%) ; écoute croissante en mobilité, conditions acoustiques dégradées. 🇫🇷 📄 `etudes/51`
 - **Arcom / IFOP (2025).** *Les Français et la radio.* — 83% de confiance dans l'info radio ; 73% d'écoute hebdomadaire. La confiance est un capital lié à la clarté. 🇫🇷
 - **CNSA / Vivre FM (2023).** *« Tout compris ! »*, première émission radio en FALC. — Référence d'accessibilité maximale : phrases ≤ 12 mots, vocabulaire courant, ni jargon ni métaphore. 🇫🇷
 - **CSA (2005).** *Recommandation relative à l'emploi de la langue française.* — Cadre réglementaire (loi Toubon) : les traductions doivent être « aussi audibles ou intelligibles » que l'original. 🇫🇷

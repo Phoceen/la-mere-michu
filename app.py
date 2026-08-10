@@ -72,11 +72,11 @@ def _format_duration(seconds):
         return f"{m}'{s:02d}\""
     return f'{s}"'
 
-st.set_page_config(page_title="La mère Michu", page_icon="🎙️", layout="wide")
+st.set_page_config(page_title="Stabilo", page_icon="🎙️", layout="wide")
 
 st.markdown("""
 <div style="text-align:center; margin-bottom:1.5rem;">
-<h1 style="margin-bottom:0.2rem;">🎙️ La mère Michu</h1>
+<h1 style="margin-bottom:0.2rem;">🎙️ Stabilo</h1>
 <p style="opacity:0.6;"><b style="color:#ef4444;">Ceci est un outil de relecture !</b> Dans un premier temps, il va effectuer une relecture dites "mécanique"<br>
             en <b style="color:#ef4444;">se basant sur une trentaine d'étude cognitive et neurologique</b> traitant de l'écoute et de l'attention.<br>
             <b style="color:#ef4444;">Il va appliquer les savoirs issus de ces études scientifiques !</b> Dans un second temps, il enverra le texte annoté à Claude. Ce dernier effectuera<br>

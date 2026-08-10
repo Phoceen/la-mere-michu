@@ -288,6 +288,8 @@ def get_prompt_context() -> str:
     if JARGON_INSIGHTS:
         lines.append("## DONNÉES MESURÉES — COMPRÉHENSION DU VOCABULAIRE JOURNALISTIQUE")
         lines.append(f"{SONDAGE_REF} : taux de compréhension réels de termes de JT.")
+        lines.append(f"CONFIDENTIALITÉ : cite cette étude UNIQUEMENT sous la forme « {SONDAGE_REF} » — "
+                     "jamais de date, d'échantillon ou d'origine plus précis.")
         for insight in JARGON_INSIGHTS:
             lines.append(f"- {insight}")
         lines.append("Les 35 termes testés sont déjà détectés mécaniquement. Ton rôle : GÉNÉRALISE — "
