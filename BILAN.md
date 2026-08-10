@@ -19,7 +19,7 @@ Aider les journalistes radio à écrire des textes qui passent mieux à l'oreill
 
 | Fichier | Rôle | Lignes |
 |---------|------|--------|
-| `knowledge_base.py` | Base de connaissances : BIBLIO (35 sources tierées A/B) + FINDINGS + anglicismes + jargon mesuré | ~330 |
+| `knowledge_base.py` | Base de connaissances : BIBLIO (sources tierées A/B, 38 études archivées) + FINDINGS (seuils liés à leurs sources) + anglicismes + jargon mesuré | ~330 |
 | `rules.py` | Moteur de règles mécaniques (9 détecteurs, zéro IA) | ~290 |
 | `agents.py` | Pipeline orchestré : 5 agents spécialisés (forme, assertions, cohérence, écoute ∥ puis mémo), sorties structurées | ~440 |
 | `ai_analyzer.py` | Façade de compatibilité vers agents.py | ~25 |
@@ -27,7 +27,7 @@ Aider les journalistes radio à écrire des textes qui passent mieux à l'oreill
 
 ### Deux étages complémentaires
 
-**Étage 1 — Règles mécaniques** (rules.py) : rapides, déterministes, auditables.
+**Étage 1 — Règles mécaniques** (rules.py) : rapides, déterministes, auditables. 9 détecteurs :
 - Longueur de phrase (> 25 mots warning, > 30 error)
 - Voix passive
 - Densité de chiffres (> 2 par phrase)
@@ -35,6 +35,10 @@ Aider les journalistes radio à écrire des textes qui passent mieux à l'oreill
 - Cacophonies
 - Tournures écrites
 - Adverbes faibles
+- Anglicismes (55 termes + équivalents, formes conjuguées)
+- Jargon mesuré (taux de compréhension réels — données privées hors git, dégradation silencieuse sans elles)
+
+Le découpage traite les marques de respiration des journalistes (`/`, `//`, `...`, retours à la ligne) comme des frontières d'**unités de souffle** — jamais comme des fautes (`km/h` et barres internes préservés).
 
 **Étage 2 — Pipeline d'agents** (agents.py, via la façade ai_analyzer.py) : reçoit le texte *déjà annoté* par l'étage 1.
 - Agent FORME : oralité phrase par phrase (regard rédac) + incarnation (VIF / FLOU / GRIS)
@@ -64,7 +68,7 @@ Diagramme complet : voir `architecture.mmd` (ouvrir dans mermaid.live).
 
 ## Base scientifique
 
-~20 études publiées dans des revues à comité de lecture couvrant 10 domaines :
+38 études archivées en PDF dans `knowledge/etudes/` (revues à comité de lecture + données institutionnelles, tierées A/B), couvrant 10 domaines :
 
 | Domaine | Études clés | Seuil/Application |
 |---------|-------------|-------------------|
@@ -73,7 +77,7 @@ Diagramme complet : voir `architecture.mmd` (ouvrir dans mermaid.live).
 | Charge cognitive (chiffres) | Baker et al. (2018), Sweller (1988) | Max 2 chiffres par phrase |
 | Double codage (images mentales) | Binder et al. (2009), Paivio | Score VIF/FLOU/GRIS |
 | Position sérielle | Glanzer & Cunitz (1966) | Primauté + récence |
-| Vagabondage mental | Kopp et al. (2015), Murray et al. (2023) | 30-40% de décrochage en écoute passive |
+| Vagabondage mental | Kopp et al. (2015), Murray et al. (2023) | 32-43% de décrochage en écoute passive |
 | Prosodie | Rodero (2012, 2017, 2023) | Débit optimal ~175 mots/min |
 | Vitesse de traitement | Rayner et al. (2008), Leroy et al. (2019) | Écoute ~2x plus lente que lecture |
 | Attention podcast | NPR, BBC (2019), Wolpaw et al. (2022) | Décision en 18 mots, 40% d'attrition en 7 min |
@@ -121,8 +125,9 @@ Diagramme complet : voir `architecture.mmd` (ouvrir dans mermaid.live).
 
 ### Session 5 — POC validé, renommage Stabilo (août 2026)
 - **Le projet s'appelle désormais Stabilo** (ex-nom banni de partout : code, docs, repo GitHub renommé `Phoceen/stabilo`)
-- **Attribution anonymisée** de l'étude de compréhension : citée uniquement comme « étude réalisée en 2023 auprès d'un panel d'auditeurs » dans toute sortie visible
-- **Études francophones complètes** ajoutées dans `knowledge/etudes/` (48-53) : Simon 2013, Olsen 2024, EGJLLE 2024, Arcom 2025, Coupé 2019, Morillon 2025 — pour ne plus dépendre des résumés IA
+- **Attribution anonymisée** de l'étude de compréhension : citée uniquement comme « étude réalisée en 2025 auprès d'un panel d'auditeurs » dans toute sortie visible
+- **Études francophones complètes** ajoutées dans `knowledge/etudes/` (48-54) : Simon 2013, Olsen 2024, EGJLLE 2024, Arcom 2025, Coupé 2019, Morillon 2025, note pays OCDE-PIAAC — pour ne plus dépendre des résumés IA
+- **Maquette interactive de la refonte** (`docs/maquette_v2.html`) : design « feuille surlignée » (traits fluo rose/jaune/vert), mémo d'abord, explications au survol, panneau au clic, zéro score — la référence visuelle donnée à Lovable
 
 #### REX du POC (retours journalistes)
 - ✅ **Très utile** — architecture OK, retours du LLM très pertinents
@@ -138,6 +143,7 @@ Diagramme complet : voir `architecture.mmd` (ouvrir dans mermaid.live).
 3. Renommer l'URL Streamlit (console Streamlit Cloud)
 
 ### Session 6 — Pipeline d'agents (août 2026)
+- **Découpage en unités de souffle** dans `split_sentences` : les `/`, `//`, `...` et retours à la ligne des journalistes deviennent des frontières de phrase (jamais des fautes) — testé sur un vrai Q/R quasiment sans ponctuation classique.
 - **L'appel LLM monolithique éclaté en pipeline orchestré** (`agents.py`) : 3 agents en parallèle (forme phrase par phrase / extraction des assertions / cohérence-transitions-sobriété) puis 1 agent de synthèse (le mémo). Orchestration Python déterministe, pas d'« agents » autonomes.
 - **Sorties structurées** (`messages.parse` + Pydantic) : les schémas sont validés par l'API — suppression définitive des rustines de parsing JSON tronqué.
 - **Modèles par tâche** : jugement éditorial sur `claude-sonnet-5`, extraction des faits sur `claude-haiku-4-5` (~10× moins cher). Contexte scientifique ciblé par agent (~800 tokens au lieu de ~2200).
@@ -175,6 +181,17 @@ Diagramme complet : voir `architecture.mmd` (ouvrir dans mermaid.live).
 | `2cf4ab3` | UX: note de relecture, seuils assouplis, entonnoir |
 | `41d10e6` | Note de relecture: memo editorial structuré en 3 sections |
 | `f416785` | Supprime variable ai_general inutilisée |
+| `30a5320` | Base de savoir v2 : bibliographie tierée + détecteurs anglicismes et jargon |
+| `e9fbf14` | Renommage Stabilo, attribution anonymisée, REX POC, prompt Lovable |
+| `46ff859` | Limite méthodologique (mesure au mot), checklist Lovable, biblio PIAAC |
+| `8e53dfc` | Maquette v2 : copie surlignée, mémo 3 niveaux, panneau au clic |
+| `9ef3ac5` | Découpage en unités de souffle + mandats transitions/sobriété |
+| `31d1dc3` | Pipeline d'agents : 4 appels spécialisés au lieu du monolithe |
+| `35ec58e` | Fusion des assertions qui se recouvrent |
+| `17326d0` | Agent écoute : auditeur simulé multi-tours (inspiré STORM) |
+| `3903e74` | Faits de causalité/tendance ; fusion non destructive |
+| `0cdd0b6` | PIAAC : remplace le 48% non traçable par les 51 points d'écart |
+| `8ef8b4e` | Liage seuil→sources ; recette citations validée |
 
 ---
 
@@ -204,13 +221,18 @@ Structure validée pour pitcher le projet en interne :
 
 **Annexes prévues :** KPIs + protocole POC, bibliographie complète, architecture + données, risques & mitigations.
 
+**Deck post-validation (août 2026)** : « Presentation Stabilo.pptx » (OneDrive, Dapi/Projet), 13 slides sur le thème officiel, généré depuis le deck de validation. Récit : rappel → depuis la validation → mémo 4 sections → auditeur simulé → pipeline → fiabilité prouvée → gouvernance → démo → est/n'est pas → protocole de test → et après. Zones d'images à remplir avec des captures de la v2.
+
 ---
 
-## Prochaines étapes identifiées (si GO)
+## Prochaines étapes (état août 2026)
 
-- Calibrer les seuils sur des papiers maison (pas encore fait)
+**Fait depuis la première version de cette liste** : gouvernance (textes → Anthropic uniquement, métadonnées seules), RAG sur les études (cache thématique + pgvector, recette citations validée).
+
+**Reste :**
+- Protocole POC en conditions réelles : 4 semaines, 5 journalistes, 30 papiers (deck prêt)
+- Calibrer les seuils sur des papiers maison (au fil du POC)
 - Mesurer l'impact via tests d'écoute (A/B, compréhension 1ère écoute)
-- Protocole POC : 4 semaines, 5 journalistes, 30 papiers
-- Gouvernance : où transitent les textes, conservation, logs, accès
-- À terme : RAG sur les études (remplacer knowledge_base.py statique)
+- Renommer l'URL Streamlit (dernier vestige de l'ancien nom)
+- Points de veille v2 : quota par session (bascule user_id/jour si contournement), gestion des comptes admin, accroches dramatisées absoutes par le mémo
 - Extension possible : autres rédactions, règles éditoriales internes
