@@ -19,8 +19,8 @@ Aider les journalistes radio à écrire des textes qui passent mieux à l'oreill
 
 | Fichier | Rôle | Lignes |
 |---------|------|--------|
-| `knowledge_base.py` | Base de connaissances scientifiques (20+ études, seuils calibrés) | ~130 |
-| `rules.py` | Moteur de règles mécaniques (7 détecteurs, zéro IA) | ~207 |
+| `knowledge_base.py` | Base de connaissances : BIBLIO (35 sources tierées A/B) + FINDINGS + anglicismes + jargon mesuré | ~330 |
+| `rules.py` | Moteur de règles mécaniques (9 détecteurs, zéro IA) | ~290 |
 | `ai_analyzer.py` | Prompt et appel Claude (5 mandats) | ~222 |
 | `app.py` | Interface Streamlit (2 zones, rendu en entonnoir) | ~697 |
 
@@ -109,6 +109,14 @@ Diagramme complet : voir `architecture.mmd` (ouvrir dans mermaid.live).
 - Restructuration en entonnoir (couche 1 / couche 2 en expander)
 - Comparaison avec ChatGPT → expansion de la note en mémo éditorial structuré (3 sections)
 - Nettoyage code (variable ai_general inutilisée supprimée)
+
+### Session 4 — Base de savoir v2 (août 2026)
+- **Bibliographie en dur** : `knowledge/bibliographie.md` — toutes les sources, classées par tier de fiabilité (A revues à comité de lecture / B données institutionnelles / C écartées : blogs, études marketing type Spotify-Neuro-Insight)
+- **`knowledge_base.py` restructuré** : dict `BIBLIO` (id → référence complète + tier) ; `FINDINGS` pointe vers les ids — zéro duplication de sources
+- **Corpus francophone intégré** : Morillon/INSERM 2025 (double rythme syllabes/phonèmes), Coupé/CNRS 2019 (39 bits/s), Cahiers de praxématique 2013, Charaudeau, PIAAC 2024 (28% des adultes ≤ niveau 1), Médiatrice Radio France, Cégep de Jonquière 2024, Arcom/IFOP 2025, FALC
+- **Nouveau détecteur : anglicismes** (~50 termes + équivalents français, formes conjuguées incluses) — fondé sur la plainte n°1 des auditeurs (Médiatrice)
+- **Nouveau détecteur : jargon institutionnel** — fondé sur un sondage interne de compréhension (données dans `sondage_prive.py`, hors git) : warning sous le seuil de compréhension majoritaire, info en zone intermédiaire. Couvre périphrases, métonymies, sigles et jargon judiciaire/économique/européen
+- **Prompt IA** : mandat de généralisation — Claude signale le jargon *similaire* non couvert par la liste mesurée ; interdiction de citer une source hors liste
 
 ### Commits
 

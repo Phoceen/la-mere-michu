@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass, field
-from knowledge_base import FINDINGS
+from knowledge_base import FINDINGS, ANGLICISMES, JARGON_COMPREHENSION, SONDAGE_REF
 
 @dataclass
 class Alert:
@@ -137,7 +137,7 @@ def _numbers(s: str) -> list[Alert]:
             ))
         else:
             alerts.append(Alert("Chiffres", "Dites-les à voix haute. Vérifiez qu'ils passent bien à l'oral.", "info", "Baker et al. (2018)"))
-    acronyms = re.findall(r"\b[A-Z]{2,}\b", s)
+    acronyms = [a for a in re.findall(r"\b[A-Z]{2,}\b", s) if a not in _JARGON_ACRONYMS]
     if acronyms:
         alerts.append(Alert("Sigles", f'{", ".join(acronyms[:4])} — développez au moins une fois pour l\'auditeur.', "info"))
     return alerts
@@ -165,6 +165,107 @@ def _vague_meter(s: str) -> list[Alert]:
     return []
 
 
+# --- Anglicismes (Médiatrice Radio France, Cégep de Jonquière, EGJLLE) ---
+
+# Alternation triée par longueur décroissante : "bad buzz" matche avant "buzz",
+# "challenger" avant "challenge".
+_ANGLICISM_RE = re.compile(
+    r"\b(?:" + "|".join(re.escape(a) for a in sorted(ANGLICISMES, key=len, reverse=True)) + r")\b",
+    re.IGNORECASE,
+)
+
+# Verbes anglicisés : détecter aussi les formes conjuguées (« a impacté », « sponsorise »)
+_VERB_STEMS = {"impact": "impacter", "sponsoris": "sponsoriser", "perform": "performer"}
+_ANGLICISM_VERB_RE = re.compile(
+    r"\b(" + "|".join(_VERB_STEMS) + r")(?:e|es|ent|é|ée|és|ées|er|era|eront|ait|aient)\b",
+    re.IGNORECASE,
+)
+
+
+def _anglicisms(s: str) -> list[Alert]:
+    found = []
+    seen = set()
+    for m in _ANGLICISM_RE.finditer(s):
+        key = m.group(0).lower()
+        if key in ANGLICISMES and key not in seen:
+            seen.add(key)
+            found.append(f"« {m.group(0)} » (→ {ANGLICISMES[key]})")
+    for m in _ANGLICISM_VERB_RE.finditer(s):
+        infinitive = _VERB_STEMS[m.group(1).lower()]
+        if infinitive not in seen:
+            seen.add(infinitive)
+            found.append(f"« {m.group(0)} » (→ {ANGLICISMES[infinitive]})")
+    if found:
+        return [Alert(
+            "Anglicisme",
+            f'{", ".join(found[:4])} — 1ʳᵉ plainte des auditeurs sur la langue (Médiatrice de Radio France) ; '
+            f"l'excès d'anglicismes creuse l'écart de compréhension entre générations (EGJLLE, 2024).",
+            "warning", "Médiatrice Radio France, EGJLLE (2024), Olsen (2024)"
+        )]
+    return []
+
+
+# --- Jargon institutionnel (sondage de compréhension — données privées) ---
+# Si sondage_prive.py est absent, JARGON_COMPREHENSION est vide et ce
+# détecteur ne lève simplement aucune alerte.
+
+_jar = FINDINGS["jargon_institutionnel"]
+_SONDAGE_SRC = SONDAGE_REF
+
+
+# Termes qui s'accordent en genre/nombre : motif explicite
+_JARGON_OVERRIDES = {
+    "mise en examen": r"\bmise?s? en examen\b",
+    "écroué": r"\bécroué(?:e|s|es)?\b",
+    "non-lieu": r"\bnon-lieux?\b",
+    "missiles balistiques": r"\bmissiles? balistiques?\b",
+    "directive européenne": r"\bdirectives? européennes?\b",
+}
+
+
+def _jargon_pattern(term: str) -> re.Pattern:
+    """Sigles : sensibles à la casse (OMS ≠ oms). Le reste : insensible."""
+    if term in _JARGON_OVERRIDES:
+        return re.compile(_JARGON_OVERRIDES[term], re.IGNORECASE)
+    if term.upper() == term and re.fullmatch(r"[A-Z0-9 ]+", term):
+        return re.compile(r"\b" + re.escape(term) + r"\b")
+    return re.compile(r"\b" + re.escape(term) + r"\b", re.IGNORECASE)
+
+
+_JARGON_PATTERNS = [(_jargon_pattern(k), v) for k, v in JARGON_COMPREHENSION.items()]
+
+# Sigles couverts par le sondage — exclus de l'alerte générique "Sigles"
+# (le détecteur jargon donne un message plus riche, avec le taux mesuré)
+_JARGON_ACRONYMS = {k for k in JARGON_COMPREHENSION if k.upper() == k and re.fullmatch(r"[A-Z0-9 ]+", k)}
+
+
+def _jargon(s: str) -> list[Alert]:
+    hard, soft = [], []
+    for pattern, data in _JARGON_PATTERNS:
+        if pattern.search(s):
+            label = f"« {data['terme']} » ({data['pct']}%)"
+            if data["pct"] < _jar["seuil_warning_pct"]:
+                hard.append(label)
+            elif data["pct"] < _jar["seuil_info_pct"]:
+                soft.append(label)
+    alerts = []
+    if hard:
+        alerts.append(Alert(
+            "Jargon opaque",
+            f'{", ".join(hard)} — compris par moins d\'un Français sur deux (taux mesurés). '
+            f"Explicitez le terme ou remplacez-le par du concret.",
+            "warning", _SONDAGE_SRC
+        ))
+    if soft:
+        alerts.append(Alert(
+            "Jargon à expliciter",
+            f'{", ".join(soft)} — un gros tiers des Français ne comprend pas ce terme. '
+            f"Une incise d'explication suffit souvent (« l'OMS, l'agence de l'ONU pour la santé »).",
+            "info", _SONDAGE_SRC
+        ))
+    return alerts
+
+
 def _info_position(s: str, index: int, total: int) -> list[Alert]:
     """Vérifie si l'info clé est bien placée (début/fin, pas au milieu)."""
     if total >= 4 and index == total // 2:
@@ -175,7 +276,7 @@ def _info_position(s: str, index: int, total: int) -> list[Alert]:
     return []
 
 
-RULES = [_length, _complex_words, _passive, _parenthetical, _negation, _numbers, _vague_meter]
+RULES = [_length, _complex_words, _passive, _parenthetical, _negation, _numbers, _vague_meter, _anglicisms, _jargon]
 
 
 def analyze_text(text: str) -> list[SentenceAnalysis]:

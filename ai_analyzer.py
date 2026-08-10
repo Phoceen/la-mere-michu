@@ -58,7 +58,7 @@ Remplis le champ "coherence" (2-3 phrases max). Si un seul texte, mets null."""
 Types de texte :
 {chr(10).join(zones_desc)}
 
-Tu reçois le texte ET le résultat des règles mécaniques déjà appliquées (longueur, voix passive, mots complexes, parenthèses, double négation, chiffres, sigles, position sérielle). NE RÉPÈTE PAS ces alertes.
+Tu reçois le texte ET le résultat des règles mécaniques déjà appliquées (longueur, voix passive, mots complexes, parenthèses, double négation, chiffres, sigles, position sérielle, anglicismes, jargon institutionnel mesuré). NE RÉPÈTE PAS ces alertes.
 
 Chaque phrase du texte est précédée d'un identifiant entre crochets (ex: [#L1], [#P3]). REPRENDS cet identifiant dans le champ "id" de ta réponse JSON pour chaque phrase. C'est OBLIGATOIRE.
 
@@ -112,7 +112,8 @@ Règles :
 - NE fais PAS de réécriture — donne des directions.
 - NE RÉPÈTE PAS les alertes mécaniques déjà signalées (longueur, voix passive, etc.).
 - Concentre-toi sur : structure globale, rythme, enchaînements, images mentales, dynamique narrative, registre oral.
-- Appuie-toi sur les études scientifiques quand c'est pertinent (cite auteur + année).
+- Appuie-toi sur les études scientifiques quand c'est pertinent (cite auteur/institution + année, uniquement des sources de la liste fournie — jamais de source inventée).
+- Si tu repères un terme de jargon NON couvert par les règles mécaniques (sigle non développé, périphrase de lieu de pouvoir, terme judiciaire/économique/européen), signale-le dans la note en t'appuyant sur les données mesurées de compréhension.
 - Utilise \\n pour les sauts de ligne dans le JSON.
 Remplis le champ "note_relecture".
 
