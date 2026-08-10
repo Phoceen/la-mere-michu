@@ -8,12 +8,17 @@ main). L'orchestration est du Python déterministe :
     rules.py (mécanique, gratuit)
         │
         ├─ en PARALLÈLE :
-        │    agent_forme      → phrase par phrase (double regard, incarnation)
+        │    agent_forme      → phrase par phrase (regard rédac, incarnation)
         │    agent_assertions → faits à vérifier (extraction pure → Haiku)
         │    agent_coherence  → lancement↔papier, transitions, sobriété
+        │    agent_ecoute     → écoute simulée multi-tours (inspirée STORM) :
+        │                       le texte arrive morceau par morceau, l'auditeur
+        │                       dit ce qu'il retient sans voir la suite, puis
+        │                       restitue. Trace d'écoute conservée.
         │
         └─ PUIS :
-             agent_memo       → la note de relecture, synthèse des sorties précédentes
+             agent_memo       → la note de relecture, synthèse des sorties
+                                précédentes — elle OUVRE sur la restitution
 
 Un agent qui échoue dégrade proprement (champ vide) au lieu de tout faire tomber.
 Côté utilisateur, une analyse = 1 crédit de quota, quel que soit le nombre
@@ -77,6 +82,13 @@ class CoherenceResult(BaseModel):
     coherence: Optional[str]  # null si une seule zone de texte
     transitions: list[str]  # transitions brutales repérées (endroit + nature du pivot manquant)
     sobriete: list[str]  # affirmations sur-dramatisées à adoucir
+
+
+class EcouteResult(BaseModel):
+    restitution: str           # ce que l'auditeur retient, dans ses mots
+    perdus: list[str]          # infos du texte qui n'ont pas survécu à l'écoute
+    malentendus: list[str]     # ce qui risque d'être compris de travers
+    decrochage: Optional[str]  # l'endroit où l'attention a lâché, null sinon
 
 
 class MemoResult(BaseModel):
@@ -179,7 +191,7 @@ Chaque phrase est précédée d'un identifiant [#L1], [#P3]... REPRENDS-LE tel q
 
 DEUX REGARDS pour chaque phrase :
 - regard_redac (rédacteur en chef) : prête pour l'antenne ? Rythme, souffle, fluidité orale, ambiguïtés sonores, registre parlé vs écrit lu.
-- regard_auditeur (auditeur naïf, première écoute, en voiture) : qu'est-ce que je comprends en une seule écoute ? Risque de malentendu ou de décrochage ? Signale aussi le jargon institutionnel/judiciaire/économique/européen, les sigles non développés et les périphrases de lieux de pouvoir.
+- regard_auditeur (auditeur naïf, première écoute) : compréhension LOCALE de cette phrase uniquement — jargon institutionnel/judiciaire/économique/européen, sigles non développés, périphrases de lieux de pouvoir, ambiguïtés sonores. L'expérience d'écoute globale (mémoire, décrochage, restitution) est mesurée par un autre agent : ne t'en occupe pas.
 
 score_incarnation (théorie du double codage, Paivio) :
 - VIF : sujet concret, verbe d'action, décor identifiable
@@ -203,6 +215,64 @@ Pour chaque assertion : l'extrait exact, sa zone (lancement/papier/qr selon l'en
 REGROUPE : une seule assertion par passage. Si plusieurs éléments imbriqués dans la même affirmation (un nom propre dans un fait, un chiffre dans une date...) se vérifient d'un même geste, produis UNE assertion — type le plus englobant — dont la note liste tous les points à vérifier. Ne crée jamais deux assertions dont les extraits se recouvrent.
 Sois exhaustif sur les FAITS, pas sur les fiches : mieux vaut une assertion de trop qu'un fait faux à l'antenne, mais jamais deux fois la même vérification."""
     return _parse(client, MODEL_EXTRACTION, system, corpus, ClaimsResult, max_tokens=4096)
+
+
+_PERSONA_AUDITEUR = """Tu n'es PAS un analyste, PAS un relecteur. Tu es un AUDITEUR de radio ordinaire :
+tu conduis, tu écoutes d'une oreille, tu ne peux JAMAIS revenir en arrière ni relire.
+Ta mémoire est celle d'un humain moyen : 3-4 éléments retenus maximum, les détails
+du milieu s'effacent, un mot inconnu ou technique te fait perdre la phrase entière.
+Tu as un niveau de lecture moyen (en France, un adulte sur trois est en difficulté
+face à un texte complexe — tu es dans la moyenne, pas un expert).
+Tu ne connais ni les numéros de phrases ni le texte écrit : tu ne cites que ce que
+tu as ENTENDU, avec tes mots à toi, comme au café en racontant à un ami.
+Sois honnête : si tu as tout compris et tout retenu, dis-le. N'invente pas de la
+confusion pour faire plaisir."""
+
+
+def agent_ecoute(client: Anthropic, texte_brut: str, chunk_size: int = 2) -> dict:
+    """Écoute simulée multi-tours (inspirée de STORM, Shao et al. 2024).
+
+    Le texte arrive morceau par morceau ; l'auditeur dit ce qu'il retient à
+    chaque étape SANS voir la suite (une seule passe, comme à l'antenne), puis
+    restitue. La trace d'écoute (états intermédiaires) situe le décrochage au
+    moment où il se produit, pas rétrospectivement.
+    """
+    sentences = split_sentences(texte_brut)
+    chunks = [" ".join(sentences[i:i + chunk_size]) for i in range(0, len(sentences), chunk_size)]
+
+    system = f"""{_PERSONA_AUDITEUR}
+
+On te fait écouter un papier radio MORCEAU PAR MORCEAU. Après chaque morceau, dis en
+1-2 phrases maximum ce que tu comprends et retiens À CE STADE (ton état mental, pas une
+analyse). Tu ne sais pas ce qui vient ensuite. Ta mémoire est limitée : si trop
+d'informations s'accumulent, les premières s'effacent — dis-le quand ça arrive.
+Si un passage te perd ou t'ennuie, dis-le sur le moment."""
+
+    messages: list[dict] = []
+    trace: list[str] = []
+    for i, chunk in enumerate(chunks, 1):
+        messages.append({"role": "user", "content": f"[morceau {i}/{len(chunks)}]\n{chunk}"})
+        resp = client.messages.create(
+            model=MODEL_JUGEMENT, max_tokens=1024,
+            system=system, messages=messages,
+        )
+        etat = "".join(b.text for b in resp.content if b.type == "text").strip()
+        trace.append(etat)
+        messages.append({"role": "assistant", "content": etat})
+
+    messages.append({"role": "user", "content": """Le papier est terminé. Sans le relire (tu ne peux pas), restitue ton expérience :
+- restitution : ce que tu retiens au final, dans tes mots (2-3 phrases)
+- perdus : les infos entendues en route mais qui ne sont plus dans ta tête
+- malentendus : ce que tu as peut-être compris de travers
+- decrochage : le moment où ton attention a lâché, si elle a lâché (null sinon)"""})
+    final = client.messages.parse(
+        model=MODEL_JUGEMENT, max_tokens=2048,
+        system=system, messages=messages,
+        output_format=EcouteResult,
+    )
+    if final.parsed_output is None:
+        raise ValueError(f"Sortie non parsable (stop_reason={final.stop_reason})")
+    return {**final.parsed_output.model_dump(), "trace": trace}
 
 
 def agent_coherence(client: Anthropic, corpus: str, has_both_zones: bool) -> CoherenceResult:
@@ -235,7 +305,10 @@ def agent_memo(client: Anthropic, corpus: str, syntheses: str) -> MemoResult:
     system = f"""Tu es un rédacteur en chef radio expérimenté qui rend sa copie annotée au journaliste.
 Tu reçois le texte ET les constats déjà établis (règles mécaniques, analyse phrase par phrase, cohérence, faits relevés). Ta note est une SYNTHÈSE hiérarchisée de ces constats — tu ne re-analyses pas tout, tu tries ce qui compte et tu le racontes.
 
-C'est un MEMO ÉDITORIAL, pas une liste de bullets. Structure OBLIGATOIRE, 3 sections séparées par des sauts de ligne :
+C'est un MEMO ÉDITORIAL, pas une liste de bullets. Structure OBLIGATOIRE, 4 sections séparées par des sauts de ligne :
+
+**CE QU'IL RESTE APRÈS UNE ÉCOUTE** (1 paragraphe)
+Un auditeur simulé a écouté le papier une seule fois (résultat dans les constats : restitution, infos perdues, décrochage). Ouvre là-dessus : ce qui survit à l'écoute, ce qui s'est perdu, et l'écart avec ce que le papier voulait faire passer. C'est le miroir — le journaliste doit voir en premier ce que l'auditeur retient vraiment.
 
 **LE PLUS URGENT** (1-3 paragraphes)
 Ce qui empêche le texte de passer en l'état. Cite la phrase exacte entre guillemets, explique POURQUOI c'est un problème pour l'oreille, donne une DIRECTION — jamais de réécriture.
@@ -290,28 +363,49 @@ def analyze_pipeline(
             parts.append(papier_rules)
     corpus = "\n\n".join(parts)
 
-    # -- Phase 1 : forme, assertions, cohérence en parallèle --
+    # L'auditeur simulé « entend » le texte brut, dans l'ordre antenne :
+    # ni tags, ni alertes mécaniques — il n'est pas analyste.
+    texte_brut = "\n\n".join(
+        t for t in (lancement_text, papier_text) if t and t.strip()
+    )
+
+    # -- Phase 1 : forme, assertions, cohérence, écoute en parallèle --
     def _safe(fn, *args):
         try:
             return fn(client, *args)
         except Exception as e:
             return e
 
-    with ThreadPoolExecutor(max_workers=3) as pool:
+    with ThreadPoolExecutor(max_workers=4) as pool:
         f_forme = pool.submit(_safe, agent_forme, corpus, papier_type)
         f_claims = pool.submit(_safe, agent_assertions, corpus)
         f_coher = pool.submit(_safe, agent_coherence, corpus, has_lancement and has_papier)
-        forme, claims, coher = f_forme.result(), f_claims.result(), f_coher.result()
+        f_ecoute = pool.submit(_safe, agent_ecoute, texte_brut)
+        forme, claims, coher, ecoute = (
+            f_forme.result(), f_claims.result(), f_coher.result(), f_ecoute.result()
+        )
 
     forme_ok = isinstance(forme, FormeResult)
     claims_ok = isinstance(claims, ClaimsResult)
     coher_ok = isinstance(coher, CoherenceResult)
+    ecoute_ok = isinstance(ecoute, dict)
 
     if not (forme_ok or claims_ok or coher_ok):
         return {"error": f"Analyse indisponible : {forme}"}
 
     # -- Phase 2 : le mémo synthétise ce que la phase 1 a trouvé --
+    # L'écoute simulée d'abord : le mémo ouvre sur la restitution.
     syntheses = []
+    if ecoute_ok:
+        bloc = [f"ÉCOUTE SIMULÉE (une seule passe, auditeur moyen) :",
+                f"Restitution : {ecoute['restitution']}"]
+        if ecoute["perdus"]:
+            bloc.append("Infos perdues : " + " | ".join(ecoute["perdus"]))
+        if ecoute["malentendus"]:
+            bloc.append("Malentendus possibles : " + " | ".join(ecoute["malentendus"]))
+        if ecoute["decrochage"]:
+            bloc.append(f"Décrochage : {ecoute['decrochage']}")
+        syntheses.append("\n".join(bloc))
     if forme_ok:
         points = [
             f"- {p.id} [{p.verdict}/{p.score_incarnation}] {p.regard_auditeur}"
@@ -363,6 +457,7 @@ def analyze_pipeline(
         "coherence": coher.coherence if coher_ok else None,
         "transitions": coher.transitions if coher_ok else [],
         "sobriete": coher.sobriete if coher_ok else [],
+        "ecoute": ecoute if ecoute_ok else None,
     }
 
 

@@ -611,6 +611,7 @@ if "analysis" in st.session_state:
     ai_claims = (data["ai_result"] or {}).get("claims", [])
     ai_coherence = (data["ai_result"] or {}).get("coherence")
     ai_note = (data["ai_result"] or {}).get("note_relecture", "")
+    ai_ecoute = (data["ai_result"] or {}).get("ecoute")
 
     # Pré-calculer les formes IA par zone (utilisées partout)
     ai_lancement = ai_zones.get("lancement", {}).get("forme", []) if data["has_lancement"] else []
@@ -658,6 +659,26 @@ if "analysis" in st.session_state:
             f'{note_html}</div>',
             unsafe_allow_html=True,
         )
+
+    # Trace d'écoute — l'expérience de l'auditeur simulé, étape par étape
+    if ai_ecoute:
+        with st.expander("🎧 Trace d'écoute — ce que l'auditeur a vécu", expanded=False):
+            st.caption(
+                "Un auditeur simulé (une seule passe, sans retour arrière) a entendu "
+                "le papier morceau par morceau. Voici son état mental à chaque étape."
+            )
+            for i, etat in enumerate(ai_ecoute.get("trace", []), 1):
+                st.markdown(f"**Morceau {i}** — {etat}")
+            if ai_ecoute.get("perdus"):
+                st.markdown("**Infos perdues en route :**")
+                for p in ai_ecoute["perdus"]:
+                    st.markdown(f"- {p}")
+            if ai_ecoute.get("malentendus"):
+                st.markdown("**Malentendus possibles :**")
+                for m in ai_ecoute["malentendus"]:
+                    st.markdown(f"- {m}")
+            if ai_ecoute.get("decrochage"):
+                st.markdown(f"**Décrochage :** {ai_ecoute['decrochage']}")
 
     # Cohérence lancement / papier (toujours visible, couche 1)
     if ai_coherence and data["has_lancement"] and data["has_papier"]:

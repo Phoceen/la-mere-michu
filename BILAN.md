@@ -21,7 +21,7 @@ Aider les journalistes radio à écrire des textes qui passent mieux à l'oreill
 |---------|------|--------|
 | `knowledge_base.py` | Base de connaissances : BIBLIO (35 sources tierées A/B) + FINDINGS + anglicismes + jargon mesuré | ~330 |
 | `rules.py` | Moteur de règles mécaniques (9 détecteurs, zéro IA) | ~290 |
-| `agents.py` | Pipeline orchestré : 4 agents spécialisés (forme, assertions, cohérence ∥ puis mémo), sorties structurées | ~330 |
+| `agents.py` | Pipeline orchestré : 5 agents spécialisés (forme, assertions, cohérence, écoute ∥ puis mémo), sorties structurées | ~440 |
 | `ai_analyzer.py` | Façade de compatibilité vers agents.py | ~25 |
 | `app.py` | Interface Streamlit (2 zones, rendu en entonnoir) | ~697 |
 
@@ -36,16 +36,16 @@ Aider les journalistes radio à écrire des textes qui passent mieux à l'oreill
 - Tournures écrites
 - Adverbes faibles
 
-**Étage 2 — Analyse IA** (ai_analyzer.py → Claude) : reçoit le texte *déjà annoté* par l'étage 1.
-- Mandat A : Forme orale (rythme, souffle, fluidité)
-- Mandat D : Incarnation (VIF / FLOU / GRIS)
-- Mandat E : Note de relecture (urgent / à surveiller / ce qui fonctionne)
-- Mandat B : Repérage d'assertions (chiffres, noms, dates, faits)
-- Mandat C : Cohérence lancement ↔ papier
+**Étage 2 — Pipeline d'agents** (agents.py, via la façade ai_analyzer.py) : reçoit le texte *déjà annoté* par l'étage 1.
+- Agent FORME : oralité phrase par phrase (regard rédac) + incarnation (VIF / FLOU / GRIS)
+- Agent ASSERTIONS : faits à vérifier (Haiku, extraction pure, fusion des recouvrements)
+- Agent COHÉRENCE : lancement ↔ papier, transitions manquantes, sobriété
+- Agent ÉCOUTE : auditeur simulé multi-tours (une passe, morceau par morceau, inspiré STORM) → restitution + trace d'écoute
+- Agent MÉMO : la note de relecture, synthèse des 4 précédents, ouvre sur la restitution
 
 ### Sortie (entonnoir)
 
-- **Couche 1** : Verdict global → Note de relecture → Cohérence → Assertions à vérifier
+- **Couche 1** : Verdict global → Note de relecture (ouvre sur « ce qu'il reste après une écoute ») → Trace d'écoute → Cohérence → Assertions à vérifier
 - **Couche 2** (expander) : Détail phrase par phrase (heatmap, tooltips, chirurgie)
 
 Diagramme complet : voir `architecture.mmd` (ouvrir dans mermaid.live).
@@ -145,6 +145,16 @@ Diagramme complet : voir `architecture.mmd` (ouvrir dans mermaid.live).
 - **Dégradation propre** : un agent qui échoue laisse son champ vide, l'analyse continue. Quota inchangé : 1 analyse = 1 crédit.
 - Nouveaux champs exploitables par l'UI v2 : `transitions` et `sobriete` (listes).
 - Testé en réel sur un Q/R : détecte transitions manquantes + sur-dramatisation (les 2 forces de ChatGPT) tout en gardant les forces propres (faits à vérifier, mesures sourcées).
+
+### Session 7 — L'agent écoute (août 2026)
+- **Constat** (idée utilisateur, inspirée de STORM, Shao et al., Stanford 2024) : le « côté auditeur » n'était qu'un champ de prompt — Sonnet jouait un auditeur *en lisant* le texte, avec tout le contexte sous les yeux. Un auditeur réel n'a qu'une passe, linéaire, sans retour arrière.
+- **Banc d'essai** de 2 variantes sur le Q/R ISS : V1 restitution (1 appel, l'auditeur « a entendu » le papier) vs V2 multi-tours (le texte arrive morceau par morceau, l'agent dit ce qu'il retient sans voir la suite, puis restitue).
+- **La V2 gagne** : elle situe le décrochage *au moment où il se produit* — sur l'ISS, au paragraphe exact où l'agent cohérence signalait le pivot manquant et où le mémo plaçait la zone de creux (3 méthodes indépendantes convergentes). Elle montre aussi l'effet de récence en direct (Glanzer & Cunitz appliqué).
+- **`agent_ecoute`** intégré en 4ᵉ branche parallèle : persona calibré (une passe, mémoire 3-4 éléments, niveau de lecture moyen — PIAAC), morceaux de 2 unités de souffle, sortie `{restitution, perdus, malentendus, decrochage}` + trace des états intermédiaires.
+- **Le mémo ouvre désormais sur la restitution** (« CE QU'IL RESTE APRÈS UNE ÉCOUTE ») — le miroir en premier. Le `regard_auditeur` du phrase-par-phrase est recentré sur la compréhension locale (jargon, sigles, ambiguïtés sonores) pour éviter le doublon.
+- **Fusion des assertions** qui se recouvrent (un extrait contenu dans un autre = une seule vérification, notes fusionnées) — en prompt ET en post-traitement Python.
+- **Latence inchangée** : 106,6 s (vs 109 s) — l'écoute multi-tours (7 appels séquentiels) tourne dans l'ombre de l'agent forme. Toujours 1 analyse = 1 crédit.
+- UI Streamlit : expander « 🎧 Trace d'écoute » sous la note. Pour la v2 Lovable : la trace alimente une courbe d'attention en marge du texte surligné (spec dans `docs/prompt_lovable.md`, mis à jour avec l'architecture complète).
 
 ### Commits
 

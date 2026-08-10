@@ -27,17 +27,25 @@ et explique pourquoi, études scientifiques à l'appui.
 ### Écran principal — Relecture
 - Deux zones de saisie : « Lancement » (accroche courte) et « Papier / Q-R » (le corps).
 - Bouton « Relire mon texte ».
-- Résultat en 3 niveaux, dans cet ordre, présenté comme un mémo de rédacteur en chef
+- Résultat : un mémo de rédacteur en chef en 4 sections, dans cet ordre
   (texte rédigé, pas des bullet points secs) :
-  1. 🔴 LE PLUS URGENT — ce qui empêche le texte de passer à l'antenne
-  2. 🟡 À SURVEILLER — ce qui affaiblit sans bloquer
-  3. 🟢 CE QUI FONCTIONNE — ce qu'il faut garder, cité précisément
+  1. 🎧 CE QU'IL RESTE APRÈS UNE ÉCOUTE — la restitution d'un auditeur simulé qui n'a
+     entendu le papier qu'une seule fois : ce qui survit, ce qui s'est perdu, l'écart
+     avec l'intention. C'est le miroir, il s'affiche en premier.
+  2. 🔴 LE PLUS URGENT — ce qui empêche le texte de passer à l'antenne
+  3. 🟡 À SURVEILLER — ce qui affaiblit sans bloquer
+  4. 🟢 CE QUI FONCTIONNE — ce qu'il faut garder, cité précisément
 - Sous le mémo : le texte du journaliste reproduit avec les zones à revoir surlignées
   (repère immédiat, au survol : l'explication + la source scientifique).
+- En marge du texte surligné : la « trace d'écoute » — l'état mental de l'auditeur
+  simulé à chaque étape du texte (« là, ça devient flou », « ça boucle avec le
+  début »), avec un marqueur visuel au point exact de décrochage. C'est une courbe
+  d'attention le long du papier.
 - Clic sur une phrase surlignée → panneau latéral « phrase par phrase » : le problème,
   la direction de correction, la source. Le journaliste corrige SON texte, l'outil
   ne remplace jamais sa formulation.
-- Une liste « Faits à vérifier avant antenne » (chiffres, noms, dates, citations relevés).
+- Une liste « Faits à vérifier avant antenne » (chiffres, noms, dates, citations
+  relevés — une seule entrée par passage, jamais deux vérifications qui se recouvrent).
 
 ### Écran admin — Monitoring (accès restreint par rôle)
 - Nombre d'utilisateurs, nombre d'analyses par jour/semaine, quota d'appels IA
@@ -46,14 +54,42 @@ et explique pourquoi, études scientifiques à l'appui.
   (confidentialité rédactionnelle) : ne stocker que des métadonnées (horodatage,
   compteurs, longueur du texte).
 
-## Backend
+## Backend — pipeline d'agents (pas un appel LLM monolithique)
 - Auth simple (magic link email) + rôles user/admin.
-- Appel à l'API Claude d'Anthropic (modèle claude-sonnet-5) via une edge function :
-  la clé API reste côté serveur, jamais dans le client.
-- Le prompt système impose : ton de rédac chef bienveillant mais exigeant, tutoiement,
-  jamais de réécriture complète, citations uniquement issues des sources fournies
-  par le RAG (jamais de source inventée), réponse JSON structurée
-  {memo_urgent, memo_surveiller, memo_fonctionne, phrases[], faits_a_verifier[]}.
+- Appels à l'API Claude d'Anthropic via une edge function : la clé API reste côté
+  serveur, jamais dans le client. Sorties structurées (structured outputs de l'API
+  Anthropic) : chaque agent renvoie un JSON validé par schéma, pas de parsing manuel.
+- Une analyse = UN pipeline orchestré de 5 agents (mais 1 seul « crédit » côté
+  utilisateur, le quota compte l'action, pas la tuyauterie) :
+  1. Règles mécaniques déterministes côté serveur, sans IA, gratuites (longueur de
+     phrase, chiffres, jargon, anglicismes, voix passive...) — leurs alertes sont
+     transmises aux agents pour qu'ils ne les répètent pas.
+  En parallèle :
+  2. Agent FORME (claude-sonnet-5) — phrase par phrase : regard rédacteur en chef
+     (rythme, souffle, oralité) + incarnation (image mentale VIF/FLOU/GRIS).
+  3. Agent ASSERTIONS (claude-haiku-4-5, extraction pure) — liste les faits à
+     vérifier ; fusion serveur des assertions dont les extraits se recouvrent.
+  4. Agent COHÉRENCE (claude-sonnet-5) — cohérence lancement/papier, transitions
+     manquantes (sauts sans phrase pivot), sobriété (sur-dramatisation).
+  5. Agent ÉCOUTE (claude-sonnet-5, multi-tours, inspiré de STORM, Stanford 2024) —
+     un auditeur simulé calibré (une seule passe, mémoire 3-4 éléments, niveau de
+     lecture moyen) reçoit le texte MORCEAU PAR MORCEAU (2 unités de souffle) et dit
+     ce qu'il retient à chaque étape SANS voir la suite ; à la fin il restitue :
+     {restitution, perdus[], malentendus[], decrochage} + la trace des états
+     intermédiaires. C'est cette trace qui alimente la courbe d'attention de l'UI.
+  Puis :
+  6. Agent MÉMO (claude-sonnet-5) — rédige la note de relecture en SYNTHÈSE des
+     constats précédents (il ne ré-analyse pas), en OUVRANT sur la restitution
+     de l'agent écoute.
+- Le prompt système de chaque agent impose : ton de rédac chef bienveillant mais
+  exigeant, tutoiement, jamais de réécriture complète, citations uniquement issues
+  des sources fournies par le RAG (jamais de source inventée).
+- Règle métier ABSOLUE, dans tous les prompts : les journalistes radio ponctuent
+  avec des marques de respiration (« / », « // », « ... », retours à la ligne) —
+  ce n'est JAMAIS une faute. Pas de correction d'orthographe (ça ne s'entend pas
+  à l'antenne), sauf coquille qui fait trébucher la lecture à voix haute.
+- Le découpage en phrases côté serveur traite ces marques comme des frontières
+  d'unités de souffle (en préservant « km/h » et autres barres internes).
 
 ## RAG sur la base de connaissances
 - Je téléverserai un corpus d'études scientifiques (PDF, ~30 documents : sciences
@@ -86,7 +122,11 @@ rédaction — pas de gadgets.
 - [ ] `knowledge/README.md`
 
 ### 📋 À copier-coller dans le chat Lovable (référence de construction)
-- [ ] Le prompt système d'`ai_analyzer.py` (les 5 mandats) — c'est le cœur métier à reproduire
+- [ ] `agents.py` EN ENTIER (sauf aucune donnée sensible dedans, vérifié) — c'est le
+      cœur métier : les 5 agents, leurs prompts système, les schémas de sortie,
+      l'orchestration parallèle et la fusion des assertions. Lovable doit le
+      transposer en edge functions, pas le réinventer.
+- [ ] La regex de découpage en unités de souffle de `rules.py` (`split_sentences`)
 - [ ] Le dict `ANGLICISMES` de `knowledge_base.py` (liste + équivalents français)
 - [ ] Les seuils de `FINDINGS` dans `knowledge_base.py` (25/30 mots, 2 chiffres, etc.)
 - [ ] La section « REX du POC » de `BILAN.md` (session 5) — pour que Lovable comprenne le pourquoi des choix design
@@ -105,7 +145,7 @@ rédaction — pas de gadgets.
    dans la v2 Lovable, on injectera les données par une variable d'environnement
    serveur — on fera ça ensemble, pas via upload.
 2. Dans toute sortie visible de l'app, cette étude est citée uniquement comme :
-   « étude réalisée en 2023 auprès d'un panel d'auditeurs ».
+   « étude réalisée en 2025 auprès d'un panel d'auditeurs ».
 3. La clé API Anthropic : dans les secrets/env du backend Lovable, jamais en dur.
 4. Les PDF de `knowledge/etudes/` peuvent être téléversés pour le RAG **sauf**
    tout document interne. En cas de doute : demande-toi si le doc est trouvable
