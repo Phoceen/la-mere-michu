@@ -266,13 +266,20 @@ def get_all_sources() -> list[dict]:
     return list(BIBLIO.values())
 
 
-def get_prompt_context() -> str:
-    """Génère le contexte scientifique à injecter dans le prompt IA."""
+def get_prompt_context(themes: list[str] | None = None, include_sondage: bool = True) -> str:
+    """Génère le contexte scientifique à injecter dans le prompt IA.
+
+    themes : liste de clés de FINDINGS à inclure (None = tout). Permet à chaque
+    agent du pipeline de ne recevoir que la part du savoir qui le concerne.
+    include_sondage : inclut le bloc des données mesurées de compréhension.
+    """
     lines = [
         "ÉTUDES SCIENTIFIQUES DE RÉFÉRENCE — utilise ces données pour appuyer tes analyses.",
         "Quand tu cites une source, cite-la précisément (auteur/institution + année) et ne cite QUE des sources de cette liste.\n",
     ]
     for theme_name, theme_data in FINDINGS.items():
+        if themes is not None and theme_name not in themes:
+            continue
         theme_label = theme_name.replace("_", " ").upper()
         lines.append(f"## {theme_label}")
         for src in resolve_sources(theme_data):
@@ -285,7 +292,7 @@ def get_prompt_context() -> str:
 
     # Données du sondage compréhension (résumé compact pour généralisation)
     # Bloc présent uniquement si les données privées sont disponibles en local.
-    if JARGON_INSIGHTS:
+    if include_sondage and JARGON_INSIGHTS:
         lines.append("## DONNÉES MESURÉES — COMPRÉHENSION DU VOCABULAIRE JOURNALISTIQUE")
         lines.append(f"{SONDAGE_REF} : taux de compréhension réels de termes de JT.")
         lines.append(f"CONFIDENTIALITÉ : cite cette étude UNIQUEMENT sous la forme « {SONDAGE_REF} » — "

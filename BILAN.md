@@ -8,7 +8,7 @@ Aider les journalistes radio à écrire des textes qui passent mieux à l'oreill
 
 - **Repo** : https://github.com/Phoceen/stabilo
 - **Live** : https://la-mere-michu.streamlit.app/ *(URL à renommer dans la console Streamlit Cloud — dernier vestige de l'ancien nom)*
-- **Stack** : Streamlit + Claude API (Sonnet 4.5) + Python 3.12
+- **Stack** : Streamlit + Claude API (pipeline Sonnet 5 + Haiku 4.5) + Python 3.12
 - **Quota** : 5 appels IA max par session
 
 ---
@@ -21,7 +21,8 @@ Aider les journalistes radio à écrire des textes qui passent mieux à l'oreill
 |---------|------|--------|
 | `knowledge_base.py` | Base de connaissances : BIBLIO (35 sources tierées A/B) + FINDINGS + anglicismes + jargon mesuré | ~330 |
 | `rules.py` | Moteur de règles mécaniques (9 détecteurs, zéro IA) | ~290 |
-| `ai_analyzer.py` | Prompt et appel Claude (5 mandats) | ~222 |
+| `agents.py` | Pipeline orchestré : 4 agents spécialisés (forme, assertions, cohérence ∥ puis mémo), sorties structurées | ~330 |
+| `ai_analyzer.py` | Façade de compatibilité vers agents.py | ~25 |
 | `app.py` | Interface Streamlit (2 zones, rendu en entonnoir) | ~697 |
 
 ### Deux étages complémentaires
@@ -135,6 +136,15 @@ Diagramme complet : voir `architecture.mmd` (ouvrir dans mermaid.live).
 1. **Temps 1** : cahier des charges de la refonte (design, suppression du score, monitoring)
 2. **Temps 2** : outil IA pour redesigner la maquette (Lovable — prompt dans `docs/prompt_lovable.md`)
 3. Renommer l'URL Streamlit (console Streamlit Cloud)
+
+### Session 6 — Pipeline d'agents (août 2026)
+- **L'appel LLM monolithique éclaté en pipeline orchestré** (`agents.py`) : 3 agents en parallèle (forme phrase par phrase / extraction des assertions / cohérence-transitions-sobriété) puis 1 agent de synthèse (le mémo). Orchestration Python déterministe, pas d'« agents » autonomes.
+- **Sorties structurées** (`messages.parse` + Pydantic) : les schémas sont validés par l'API — suppression définitive des rustines de parsing JSON tronqué.
+- **Modèles par tâche** : jugement éditorial sur `claude-sonnet-5`, extraction des faits sur `claude-haiku-4-5` (~10× moins cher). Contexte scientifique ciblé par agent (~800 tokens au lieu de ~2200).
+- **Le mémo est désormais une vraie synthèse** : il reçoit les constats des 3 autres agents et hiérarchise, au lieu d'être généré en même temps.
+- **Dégradation propre** : un agent qui échoue laisse son champ vide, l'analyse continue. Quota inchangé : 1 analyse = 1 crédit.
+- Nouveaux champs exploitables par l'UI v2 : `transitions` et `sobriete` (listes).
+- Testé en réel sur un Q/R : détecte transitions manquantes + sur-dramatisation (les 2 forces de ChatGPT) tout en gardant les forces propres (faits à vérifier, mesures sourcées).
 
 ### Commits
 
