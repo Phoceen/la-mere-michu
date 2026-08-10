@@ -1,0 +1,417 @@
+<title>Stabilo — maquette v2</title>
+<style>
+  :root {
+    --papier: #FBF9F4;
+    --feuille: #FFFFFF;
+    --encre: #292418;
+    --encre-2: #6E675A;
+    --trait: #E8E3D7;
+    --stylo: #2450A4;
+    --crayon: #C0392B;
+    --hl-rose: #FFC2CE;
+    --hl-rose-fort: #FFA8B8;
+    --hl-jaune: #F9E48B;
+    --hl-jaune-fort: #F5D95E;
+    --hl-vert: #C9EDA4;
+    --hl-vert-fort: #B5E585;
+    --ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --copie: Georgia, "Times New Roman", serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { background: var(--papier); }
+  body {
+    font-family: var(--ui);
+    color: var(--encre);
+    background: var(--papier);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 860px; margin: 0 auto; padding: 28px 20px 120px; }
+
+  /* ---------- Barre haute ---------- */
+  header.topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; margin-bottom: 34px;
+  }
+  .logo { display: flex; align-items: baseline; gap: 10px; }
+  .logo .mark {
+    font-weight: 800; font-size: 1.35rem; letter-spacing: 0.06em;
+    padding: 0 10px 2px;
+    background: linear-gradient(100deg, transparent 0%, var(--hl-jaune) 4%, var(--hl-jaune) 96%, transparent 100%);
+    border-radius: 3px;
+  }
+  .logo .tagline { color: var(--encre-2); font-size: 0.85rem; }
+  .topbar .meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .chip {
+    font-size: 0.78rem; color: var(--encre-2);
+    border: 1px solid var(--trait); background: var(--feuille);
+    padding: 4px 12px; border-radius: 999px; white-space: nowrap;
+  }
+  .chip strong { color: var(--encre); font-weight: 600; }
+  .btn-retour {
+    font-family: var(--ui); font-size: 0.82rem; font-weight: 600;
+    color: var(--stylo); background: none; border: 1px solid var(--stylo);
+    border-radius: 999px; padding: 5px 14px; cursor: pointer;
+  }
+  .btn-retour:hover { background: var(--stylo); color: #fff; }
+
+  /* ---------- Mémo ---------- */
+  .memo {
+    background: var(--feuille); border: 1px solid var(--trait);
+    border-radius: 10px; padding: 26px 30px 22px; margin-bottom: 30px;
+    box-shadow: 0 1px 3px rgba(41, 36, 24, 0.06);
+  }
+  .memo .eyebrow {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--encre-2); margin-bottom: 14px;
+  }
+  .memo-item { display: grid; grid-template-columns: 22px 1fr; gap: 12px; padding: 10px 0; }
+  .memo-item + .memo-item { border-top: 1px dashed var(--trait); }
+  .puce { width: 13px; height: 13px; border-radius: 3px; margin-top: 5px; transform: rotate(-4deg); }
+  .puce.urgent { background: var(--hl-rose-fort); }
+  .puce.surveiller { background: var(--hl-jaune-fort); }
+  .puce.ok { background: var(--hl-vert-fort); }
+  .memo-item h2 { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 2px; }
+  .memo-item.u h2 { color: var(--crayon); }
+  .memo-item p { font-size: 0.95rem; color: var(--encre); max-width: 62ch; }
+  .memo-item p em { font-style: normal; font-weight: 600; }
+
+  /* ---------- La copie ---------- */
+  .copie {
+    background: var(--feuille); border: 1px solid var(--trait);
+    border-radius: 10px; padding: 38px 44px 30px;
+    box-shadow: 0 1px 3px rgba(41, 36, 24, 0.06);
+    position: relative;
+  }
+  .copie .zone-label {
+    font-family: var(--ui); font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--encre-2);
+    margin: 26px 0 10px;
+  }
+  .copie .zone-label:first-child { margin-top: 0; }
+  .copie p.script {
+    font-family: var(--copie); font-size: 1.12rem; line-height: 1.9;
+    max-width: 62ch; margin-bottom: 6px;
+  }
+  .legende {
+    display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+    margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--trait);
+    font-size: 0.78rem; color: var(--encre-2);
+  }
+  .legende .swatch { display: inline-block; width: 26px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; transform: rotate(-1deg); }
+  .legende .aide { margin-left: auto; font-style: italic; }
+
+  /* Coups de surligneur */
+  mark {
+    font-family: inherit; color: inherit; cursor: pointer;
+    padding: 2px 5px 3px; border-radius: 3px;
+    background: linear-gradient(100deg, transparent 0%, var(--hl) 2.5%, var(--hl) 97.5%, transparent 100%);
+    -webkit-box-decoration-break: clone; box-decoration-break: clone;
+    transition: filter 0.12s ease;
+    position: relative;
+  }
+  mark.urgent { --hl: var(--hl-rose); }
+  mark.surveiller { --hl: var(--hl-jaune); }
+  mark.ok { --hl: var(--hl-vert); }
+  mark:hover, mark:focus-visible { filter: saturate(1.5) brightness(0.97); }
+  mark:focus-visible { outline: 2px solid var(--stylo); outline-offset: 2px; }
+  mark.actif { box-shadow: 0 2px 0 0 var(--stylo); }
+
+  /* Info-bulle au survol */
+  #bulle {
+    position: absolute; z-index: 40; max-width: 320px;
+    background: var(--encre); color: #FDFBF6;
+    font-family: var(--ui); font-size: 0.82rem; line-height: 1.45;
+    padding: 10px 14px; border-radius: 8px;
+    pointer-events: none; opacity: 0; transition: opacity 0.12s ease;
+  }
+  #bulle.visible { opacity: 1; }
+  #bulle .b-titre { font-weight: 700; margin-bottom: 2px; }
+  #bulle .b-clic { display: block; margin-top: 6px; font-size: 0.72rem; opacity: 0.7; font-style: italic; }
+
+  /* ---------- Faits à vérifier ---------- */
+  .faits {
+    background: var(--feuille); border: 1px solid var(--trait);
+    border-radius: 10px; padding: 22px 30px; margin-top: 30px;
+    box-shadow: 0 1px 3px rgba(41, 36, 24, 0.06);
+  }
+  .faits .eyebrow {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--encre-2); margin-bottom: 12px;
+  }
+  .faits ul { list-style: none; }
+  .faits li {
+    display: grid; grid-template-columns: 20px 1fr auto; gap: 10px; align-items: baseline;
+    padding: 7px 0; font-size: 0.92rem;
+  }
+  .faits li + li { border-top: 1px dashed var(--trait); }
+  .faits .case {
+    width: 13px; height: 13px; border: 1.5px solid var(--encre-2);
+    border-radius: 3px; align-self: center;
+  }
+  .faits .type { font-size: 0.72rem; color: var(--encre-2); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+  .faits li q { font-family: var(--copie); quotes: "« " " »"; }
+
+  /* ---------- Panneau latéral ---------- */
+  .voile {
+    position: fixed; inset: 0; background: rgba(41, 36, 24, 0.25);
+    opacity: 0; pointer-events: none; transition: opacity 0.18s ease; z-index: 50;
+  }
+  .voile.ouvert { opacity: 1; pointer-events: auto; }
+  aside.panneau {
+    position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 92vw);
+    background: var(--feuille); border-left: 1px solid var(--trait);
+    box-shadow: -12px 0 32px rgba(41, 36, 24, 0.12);
+    transform: translateX(105%); transition: transform 0.22s ease;
+    z-index: 60; overflow-y: auto; padding: 28px 30px 40px;
+  }
+  aside.panneau.ouvert { transform: translateX(0); }
+  .panneau .fermer {
+    position: absolute; top: 16px; right: 16px;
+    background: none; border: none; font-size: 1.3rem; line-height: 1;
+    color: var(--encre-2); cursor: pointer; padding: 6px;
+  }
+  .panneau .fermer:hover { color: var(--encre); }
+  .panneau .p-niveau {
+    display: inline-block; font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 3px; margin-bottom: 14px;
+  }
+  .p-niveau.urgent { background: var(--hl-rose); }
+  .p-niveau.surveiller { background: var(--hl-jaune); }
+  .p-niveau.ok { background: var(--hl-vert); }
+  .panneau blockquote {
+    font-family: var(--copie); font-size: 1.02rem; line-height: 1.6;
+    border-left: 3px solid var(--trait); padding-left: 14px;
+    color: var(--encre); margin-bottom: 22px;
+  }
+  .panneau h3 {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--encre-2); margin: 18px 0 6px;
+  }
+  .panneau .p-bloc p { font-size: 0.93rem; margin-bottom: 6px; }
+  .panneau .direction { color: var(--stylo); font-weight: 500; }
+  .panneau .source {
+    font-size: 0.8rem; color: var(--encre-2); font-style: italic;
+    border-top: 1px solid var(--trait); margin-top: 22px; padding-top: 12px;
+  }
+  .panneau .rappel-main {
+    margin-top: 18px; font-size: 0.8rem; color: var(--encre-2);
+    background: var(--papier); border-radius: 6px; padding: 10px 12px;
+  }
+
+  @media (max-width: 640px) {
+    .copie { padding: 26px 22px; }
+    .copie p.script { font-size: 1.04rem; }
+    aside.panneau { width: 100vw; border-left: none; }
+    .legende .aide { margin-left: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    aside.panneau, .voile, mark, #bulle { transition: none; }
+  }
+</style>
+
+<div class="page">
+
+  <header class="topbar">
+    <div class="logo">
+      <span class="mark">STABILO</span>
+      <span class="tagline">relecture pour l'oreille</span>
+    </div>
+    <div class="meta">
+      <span class="chip">Papier · <strong>1 min 12</strong> à l'antenne</span>
+      <button class="btn-retour" type="button">↩ Nouveau texte</button>
+    </div>
+  </header>
+
+  <!-- ============ 1. LE MÉMO (succinct) ============ -->
+  <section class="memo" aria-label="Note de relecture">
+    <div class="eyebrow">Note de relecture</div>
+
+    <div class="memo-item u">
+      <span class="puce urgent" aria-hidden="true"></span>
+      <div>
+        <h2>Le plus urgent</h2>
+        <p>Ta phrase 2 fait <em>41 mots</em> : personne ne la retient à l'oreille. Coupe après
+        « États membres ». Et « directive européenne » ne dit rien à la majorité des auditeurs —
+        dis « la nouvelle règle européenne ».</p>
+      </div>
+    </div>
+
+    <div class="memo-item">
+      <span class="puce surveiller" aria-hidden="true"></span>
+      <div>
+        <h2>À surveiller</h2>
+        <p>Trois chiffres dans ta phrase 3 : garde <em>« près de 17 % d'électriques »</em>, vire le
+        reste. « Impacter » → « menacer ». Phrase 4 : on ne voit rien, remplace l'abstrait par du concret.</p>
+      </div>
+    </div>
+
+    <div class="memo-item">
+      <span class="puce ok" aria-hidden="true"></span>
+      <div>
+        <h2>Ce qui fonctionne</h2>
+        <p>Ton attaque et ta chute font le boulot : concrètes, visuelles. La phrase de Douai,
+        <em>on la voit</em>. Garde ce registre-là partout.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. LA COPIE SURLIGNÉE ============ -->
+  <section class="copie" aria-label="Texte surligné">
+    <div class="zone-label">Lancement</div>
+    <p class="script">C'est une décision qui va changer nos voitures.
+      <mark class="ok" tabindex="0" data-id="p0">Dès 2035, plus aucune voiture neuve à essence ou
+      diesel ne pourra être vendue en Europe.</mark>
+      Explications.</p>
+
+    <div class="zone-label">Papier</div>
+    <p class="script">
+      <mark class="urgent" tabindex="0" data-id="p2">Cette directive européenne, qui doit encore être
+      ratifiée par chacun des vingt-sept États membres avant d'entrer en vigueur, prévoit également un
+      mécanisme de révision en 2026 qui pourrait, selon plusieurs observateurs, assouplir le calendrier
+      initialement prévu par la Commission.</mark>
+      <mark class="surveiller" tabindex="0" data-id="p3">Les constructeurs, eux, estiment que la mesure
+      va impacter près de 400 000 emplois : en 2024, il s'est vendu 1 718 417 voitures neuves en France,
+      dont 16,9 % d'électriques, soit une hausse de 3,2 points.</mark>
+      <mark class="surveiller" tabindex="0" data-id="p4">La mise en œuvre de cette transition suppose une
+      transformation structurelle des dispositifs de production.</mark>
+      <mark class="ok" tabindex="0" data-id="p5">À Douai, sur les chaînes de l'usine Renault, on assemble
+      déjà les voitures électriques qui rouleront en 2035.</mark>
+    </p>
+
+    <div class="legende">
+      <span><span class="swatch" style="background:var(--hl-rose)"></span>À reprendre</span>
+      <span><span class="swatch" style="background:var(--hl-jaune)"></span>À surveiller</span>
+      <span><span class="swatch" style="background:var(--hl-vert)"></span>Ça marche, garde</span>
+      <span class="aide">Survole pour comprendre · clique pour corriger</span>
+    </div>
+  </section>
+
+  <!-- ============ 3. FAITS À VÉRIFIER ============ -->
+  <section class="faits" aria-label="Faits à vérifier">
+    <div class="eyebrow">À vérifier avant l'antenne</div>
+    <ul>
+      <li><span class="case" aria-hidden="true"></span><span><q>fin des ventes en 2035</q> — la date et le périmètre exact (voitures neuves uniquement ?)</span><span class="type">date</span></li>
+      <li><span class="case" aria-hidden="true"></span><span><q>près de 400 000 emplois</q> — attribué aux constructeurs : quelle source exacte ?</span><span class="type">chiffre</span></li>
+      <li><span class="case" aria-hidden="true"></span><span><q>1 718 417 voitures neuves, 16,9 %</q> — millésime et source des immatriculations</span><span class="type">chiffre</span></li>
+      <li><span class="case" aria-hidden="true"></span><span><q>révision en 2026</q> — statut réel de la clause de revoyure</span><span class="type">fait</span></li>
+    </ul>
+  </section>
+
+</div>
+
+<!-- Info-bulle -->
+<div id="bulle" role="tooltip"></div>
+
+<!-- Panneau latéral -->
+<div class="voile" id="voile"></div>
+<aside class="panneau" id="panneau" aria-label="Détail de la phrase">
+  <button class="fermer" type="button" aria-label="Fermer">✕</button>
+  <span class="p-niveau" id="p-niveau"></span>
+  <blockquote id="p-phrase"></blockquote>
+  <div class="p-bloc">
+    <h3>Le problème</h3>
+    <p id="p-probleme"></p>
+    <h3>La direction</h3>
+    <p class="direction" id="p-direction"></p>
+  </div>
+  <p class="source" id="p-source"></p>
+  <p class="rappel-main">✍️ Stabilo montre où ça coince et dans quelle direction aller.
+  La formulation finale, c'est la tienne.</p>
+</aside>
+
+<script>
+  const DATA = {
+    p0: {
+      niveau: "ok", label: "Ça marche",
+      phrase: "Dès 2035, plus aucune voiture neuve à essence ou diesel ne pourra être vendue en Europe.",
+      court: "Attaque concrète et datée — l'auditeur sait immédiatement de quoi on parle.",
+      probleme: "Aucun. C'est une attaque efficace : une date, un objet du quotidien, une conséquence claire. L'image mentale est immédiate.",
+      direction: "Rien à changer. Ce registre concret est ta référence pour le reste du papier.",
+      source: "📚 Binder et al. (2009) — les mots concrets sont mieux mémorisés (double codage verbal + image)."
+    },
+    p2: {
+      niveau: "urgent", label: "À reprendre",
+      phrase: "Cette directive européenne, qui doit encore être ratifiée par chacun des vingt-sept États membres avant d'entrer en vigueur, prévoit également un mécanisme de révision en 2026 qui pourrait, selon plusieurs observateurs, assouplir le calendrier initialement prévu par la Commission.",
+      court: "41 mots, une incise de 14 mots, et « directive européenne » : la phrase perd l'auditeur trois fois.",
+      probleme: "41 mots : la mémoire de travail ne retient que 3 à 5 éléments — à l'oreille, la fin de la phrase efface le début. Et « directive européenne » n'est pas compris par une majorité d'auditeurs.",
+      direction: "Coupe en deux après « États membres ». Remplace « directive européenne » par « la nouvelle règle européenne ». L'incise « selon plusieurs observateurs » mérite sa propre phrase — ou la sortie.",
+      source: "📚 Cowan (2001) · Caplan & Waters (1999) · Étude réalisée en 2025 auprès d'un panel d'auditeurs (taux mesuré sur le mot isolé — vérifie aussi la phrase entière)."
+    },
+    p3: {
+      niveau: "surveiller", label: "À surveiller",
+      phrase: "Les constructeurs, eux, estiment que la mesure va impacter près de 400 000 emplois : en 2024, il s'est vendu 1 718 417 voitures neuves en France, dont 16,9 % d'électriques, soit une hausse de 3,2 points.",
+      court: "Quatre chiffres dont un à sept chiffres, et un anglicisme : l'oreille sature.",
+      probleme: "Sous charge cognitive, les chiffres sont sous-estimés et mal retenus — au-delà de deux par phrase, plus rien n'imprime. « 1 718 417 » est illisible à l'oral. « Impacter » est un anglicisme signalé par les auditeurs.",
+      direction: "Garde un seul chiffre : « près d'une voiture neuve sur six est électrique ». « Impacter » → « menacer ». Le détail des immatriculations peut vivre dans une deuxième phrase… ou nulle part.",
+      source: "📚 Baker et al. (2018) · Sweller (1988) · Médiatrice de Radio France (anglicismes = 1ʳᵉ plainte des auditeurs)."
+    },
+    p4: {
+      niveau: "surveiller", label: "À surveiller",
+      phrase: "La mise en œuvre de cette transition suppose une transformation structurelle des dispositifs de production.",
+      court: "Cinq abstractions d'affilée : l'auditeur ne voit rien.",
+      probleme: "« Mise en œuvre », « transition », « transformation structurelle », « dispositifs » : aucune image mentale possible. C'est la définition d'une phrase GRISE — l'auditeur décroche sans même s'en rendre compte.",
+      direction: "Dis ce qui change concrètement : qui fait quoi, où ? Une usine, des machines, des gestes. La phrase suivante (Douai) montre exactement comment faire.",
+      source: "📚 Paivio — double codage · Binder et al. (2009)."
+    },
+    p5: {
+      niveau: "ok", label: "Ça marche",
+      phrase: "À Douai, sur les chaînes de l'usine Renault, on assemble déjà les voitures électriques qui rouleront en 2035.",
+      court: "Un lieu, des gestes, une projection : la chute est vivante.",
+      probleme: "Aucun. Un lieu réel, une action en cours, une projection vers la date du titre : la boucle est bouclée et l'auditeur repart avec une image.",
+      direction: "Rien à changer. Position finale idéale : c'est ce que l'auditeur retiendra (effet de récence).",
+      source: "📚 Glanzer & Cunitz (1966) — position sérielle · Rodero (2012) — imagerie mentale."
+    }
+  };
+
+  const bulle = document.getElementById("bulle");
+  const panneau = document.getElementById("panneau");
+  const voile = document.getElementById("voile");
+  const marks = document.querySelectorAll("mark[data-id]");
+  const NIVEAUX = { urgent: "urgent", surveiller: "surveiller", ok: "ok" };
+
+  // --- Info-bulle au survol ---
+  marks.forEach(m => {
+    m.addEventListener("mousemove", e => {
+      const d = DATA[m.dataset.id];
+      if (!d) return;
+      bulle.innerHTML = '<div class="b-titre">' + d.label + '</div>' + d.court +
+        '<span class="b-clic">Clique pour le détail et la direction ›</span>';
+      const x = Math.min(e.pageX + 14, document.documentElement.clientWidth - 336);
+      bulle.style.left = x + "px";
+      bulle.style.top = (e.pageY + 18) + "px";
+      bulle.classList.add("visible");
+    });
+    m.addEventListener("mouseleave", () => bulle.classList.remove("visible"));
+
+    // --- Clic (ou Entrée) → panneau ---
+    const ouvrir = () => {
+      const d = DATA[m.dataset.id];
+      if (!d) return;
+      marks.forEach(x => x.classList.remove("actif"));
+      m.classList.add("actif");
+      document.getElementById("p-niveau").textContent = d.label;
+      document.getElementById("p-niveau").className = "p-niveau " + NIVEAUX[d.niveau];
+      document.getElementById("p-phrase").textContent = "« " + d.phrase + " »";
+      document.getElementById("p-probleme").textContent = d.probleme;
+      document.getElementById("p-direction").textContent = d.direction;
+      document.getElementById("p-source").textContent = d.source;
+      panneau.classList.add("ouvert");
+      voile.classList.add("ouvert");
+      bulle.classList.remove("visible");
+    };
+    m.addEventListener("click", ouvrir);
+    m.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); ouvrir(); } });
+  });
+
+  const fermer = () => {
+    panneau.classList.remove("ouvert");
+    voile.classList.remove("ouvert");
+    marks.forEach(x => x.classList.remove("actif"));
+  };
+  panneau.querySelector(".fermer").addEventListener("click", fermer);
+  voile.addEventListener("click", fermer);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") fermer(); });
+</script>
