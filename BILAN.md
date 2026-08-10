@@ -156,6 +156,15 @@ Diagramme complet : voir `architecture.mmd` (ouvrir dans mermaid.live).
 - **Latence inchangée** : 106,6 s (vs 109 s) — l'écoute multi-tours (7 appels séquentiels) tourne dans l'ombre de l'agent forme. Toujours 1 analyse = 1 crédit.
 - UI Streamlit : expander « 🎧 Trace d'écoute » sous la note. Pour la v2 Lovable : la trace alimente une courbe d'attention en marge du texte surligné (spec dans `docs/prompt_lovable.md`, mis à jour avec l'architecture complète).
 
+### Session 8 — v2 Lovable : transposition et gouvernance (août 2026)
+- Le pipeline à 5 agents transposé dans Lovable (edge functions), validé par **test différentiel** sur le Q/R ISS : convergence sur le décrochage, le pivot manquant et la sobriété ; une divergence assumée (l'attaque jugée bonne parce que la trace d'écoute le montrait — la mesure prime la théorie).
+- Bascule de la passerelle IA par défaut de Lovable (Gemini) vers **l'API Anthropic directe** : mêmes modèles que le POC, sorties structurées natives (`output_config.format`), thinking adaptatif préservé, clé dédiée dans les secrets backend.
+- Corrections croisées v2 → POC : extraction des faits de causalité/comparaison/tendance, **fusion non destructive** des assertions (rétroportées dans `agents.py` — le POC reste l'implémentation de référence).
+- Auth magic link verrouillée au domaine e-mail de la rédaction (trigger en base, tient contre un appel direct à l'API d'auth), quota 5/session, RLS + privilèges Postgres révoqués sur la table des rôles, journal admin **sans aucune colonne de texte** (métadonnées seules, par construction).
+- RAG pgvector : 38 études indexées (2 537 passages), bucket privé, manifeste miroir de `bibliographie.md`, un passage max par étude, bonus tier A. Puis remplacement de la vectorisation à l'analyse par un **cache thématique précalculé** (requêtes constantes par thème + socle de thèmes toujours injecté) — la validation a posteriori du choix « bibliographie en dur » du POC.
+- **Résultat de gouvernance** : le texte du journaliste n'a qu'une seule destination possible, l'API Anthropic — aucun chemin de code sortant, y compris en mode dégradé (embeddings tiers réservés à l'indexation du corpus public, hors analyse).
+- Reste avant mise en mains réelles : la **recette citations** (attribution ligne à ligne contre la bibliographie + zéro citation inventée), à valider à la main.
+
 ### Commits
 
 | Hash | Message |
