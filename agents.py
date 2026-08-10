@@ -118,6 +118,36 @@ def _tag_sentences(text: str, prefix: str) -> tuple[str, dict[str, str]]:
     return tagged, mapping
 
 
+def _dedupe_claims(claims: list[Claim]) -> list[dict]:
+    """Fusionne les assertions dont l'extrait est contenu dans un autre (même zone).
+
+    Évite de faire vérifier deux fois le même passage : « une fusée SpaceX,
+    l'entreprise d'Elon Musk » disparaît au profit de la phrase complète qui le
+    contient, sa note étant reversée dans celle de l'assertion englobante.
+    """
+    def norm(s: str) -> str:
+        return " ".join(s.lower().split())
+
+    items = [c.model_dump() for c in claims]
+    kept = []
+    for i, c in enumerate(items):
+        containers = [
+            (j, o) for j, o in enumerate(items)
+            if j != i and c["zone"] == o["zone"]
+            and norm(c["extrait"]) in norm(o["extrait"])
+            # sur extraits identiques, seul le premier survit
+            and (len(norm(o["extrait"])) > len(norm(c["extrait"])) or j < i)
+        ]
+        if containers:
+            # on reverse la note dans l'extrait le plus englobant (pas de fusion en chaîne)
+            _, best = max(containers, key=lambda t: len(norm(t[1]["extrait"])))
+            if norm(c["note"]) not in norm(best["note"]):
+                best["note"] = f"{best['note']} — {c['note']}"
+        else:
+            kept.append(c)
+    return kept
+
+
 def _parse(client: Anthropic, model: str, system: str, user: str,
            schema: type[BaseModel], max_tokens: int) -> BaseModel:
     """Un appel avec sortie structurée validée par l'API."""
@@ -170,7 +200,8 @@ def agent_assertions(client: Anthropic, corpus: str) -> ClaimsResult:
     system = """Tu extrais d'un script radio TOUTE assertion vérifiable : chiffres précis, noms propres, dates, lieux, faits attribués, citations.
 Tu ne fais PAS de fact-checking : tu LISTES ce que le journaliste devrait vérifier avant antenne.
 Pour chaque assertion : l'extrait exact, sa zone (lancement/papier/qr selon l'en-tête de section), son type, et une note disant quoi vérifier précisément.
-Sois exhaustif — mieux vaut une assertion de trop qu'un fait faux à l'antenne."""
+REGROUPE : une seule assertion par passage. Si plusieurs éléments imbriqués dans la même affirmation (un nom propre dans un fait, un chiffre dans une date...) se vérifient d'un même geste, produis UNE assertion — type le plus englobant — dont la note liste tous les points à vérifier. Ne crée jamais deux assertions dont les extraits se recouvrent.
+Sois exhaustif sur les FAITS, pas sur les fiches : mieux vaut une assertion de trop qu'un fait faux à l'antenne, mais jamais deux fois la même vérification."""
     return _parse(client, MODEL_EXTRACTION, system, corpus, ClaimsResult, max_tokens=4096)
 
 
@@ -298,8 +329,9 @@ def analyze_pipeline(
             syntheses.append("TRANSITIONS MANQUANTES :\n" + "\n".join(f"- {t}" for t in coher.transitions))
         if coher.sobriete:
             syntheses.append("SOBRIÉTÉ :\n" + "\n".join(f"- {s}" for s in coher.sobriete))
+    claims_list = _dedupe_claims(claims.claims) if claims_ok else []
     if claims_ok:
-        syntheses.append(f"FAITS À VÉRIFIER : {len(claims.claims)} assertions relevées (listées à part, ne les détaille pas).")
+        syntheses.append(f"FAITS À VÉRIFIER : {len(claims_list)} assertions relevées (listées à part, ne les détaille pas).")
 
     try:
         memo = agent_memo(client, corpus, "\n\n".join(syntheses))
@@ -327,7 +359,7 @@ def analyze_pipeline(
         "note_relecture": note,
         "impression_generale": impression,
         "zones": zones,
-        "claims": [c.model_dump() for c in claims.claims] if claims_ok else [],
+        "claims": claims_list,
         "coherence": coher.coherence if coher_ok else None,
         "transitions": coher.transitions if coher_ok else [],
         "sobriete": coher.sobriete if coher_ok else [],
