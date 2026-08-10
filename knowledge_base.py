@@ -92,7 +92,7 @@ BIBLIO = {
     "bbc2019": {"ref": "BBC Audio:Activated (2019)", "titre": "Écoute en activité", "journal": "BBC (étude interne)", "tier": "B",
                 "finding": "Écoute en activité : +18% engagement, +40% intensité émotionnelle, +22% encodage mémoire à long terme."},
     "piaac2024": {"ref": "OCDE — PIAAC (2024)", "titre": "Évaluation internationale des compétences des adultes", "journal": "OCDE", "tier": "B",
-                  "finding": "28% des adultes français (16-65 ans) sont au niveau 1 ou moins en littératie (+6 pts depuis 2012). 48% des 55-65 ans — cœur d'audience radio — sont en difficulté face aux textes complexes. Difficultés écrit et oral fortement corrélées."},
+                  "finding": "28% des adultes français (16-65 ans) sont au niveau 1 ou moins en littératie (+6 pts depuis 2012). Les 55-65 ans — cœur d'audience radio — ont 51 points de moins en littératie que les 25-34 ans, soit environ 3 fois plus souvent en faible maîtrise que les 16-24 ans (exploitation Dares/DEPP). Difficultés écrit et oral fortement corrélées."},
     "mediatrice_rf": {"ref": "Médiatrice de Radio France (2022-2026)", "titre": "Courriers d'auditeurs sur la langue française", "journal": "Radio France (médiation)", "tier": "B",
                       "finding": "Plainte n°1 des auditeurs sur la langue : les anglicismes non nécessaires (casting, think tank, storytelling, impacter...), suivis de l'appauvrissement lexical et du relâchement syntaxique."},
     "cegep2024": {"ref": "Olsen — Cégep de Jonquière (2024)", "titre": "La langue dans les radios québécoises", "journal": "Cégep de Jonquière (ATM)", "tier": "B",
@@ -180,7 +180,7 @@ FINDINGS = {
     },
     "litteratie_audience": {
         "pct_adultes_niveau1_ou_moins": 28,
-        "pct_55_65_en_difficulte": 48,
+        "ecart_points_litteratie_55_65_vs_25_34": 51,
         "falc_mots_max": 12,
         "sources": ["piaac2024", "falc2023"],
     },
