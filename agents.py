@@ -131,11 +131,13 @@ def _tag_sentences(text: str, prefix: str) -> tuple[str, dict[str, str]]:
 
 
 def _dedupe_claims(claims: list[Claim]) -> list[dict]:
-    """Fusionne les assertions dont l'extrait est contenu dans un autre (même zone).
+    """Fusionne les assertions qui se recouvrent (même zone) — sans rien perdre.
 
-    Évite de faire vérifier deux fois le même passage : « une fusée SpaceX,
-    l'entreprise d'Elon Musk » disparaît au profit de la phrase complète qui le
-    contient, sa note étant reversée dans celle de l'assertion englobante.
+    Fusion NON DESTRUCTIVE : seuls un doublon strict ou un fragment court de type
+    chiffre/nom propre/date contenu dans un extrait englobant sont absorbés (leur
+    note est reversée dans l'assertion englobante). Un fait ou une citation n'est
+    JAMAIS avalé par une phrase qui le contient : deux vérifications distinctes
+    restent deux entrées.
     """
     def norm(s: str) -> str:
         return " ".join(s.lower().split())
@@ -143,12 +145,16 @@ def _dedupe_claims(claims: list[Claim]) -> list[dict]:
     items = [c.model_dump() for c in claims]
     kept = []
     for i, c in enumerate(items):
+        nc = norm(c["extrait"])
+        absorbable = c["type"] in ("chiffre", "nom_propre", "date")
         containers = [
             (j, o) for j, o in enumerate(items)
             if j != i and c["zone"] == o["zone"]
-            and norm(c["extrait"]) in norm(o["extrait"])
-            # sur extraits identiques, seul le premier survit
-            and (len(norm(o["extrait"])) > len(norm(c["extrait"])) or j < i)
+            and nc in norm(o["extrait"])
+            # doublon strict : seul le premier survit ; sinon il faut un extrait
+            # strictement englobant ET un fragment absorbable
+            and ((norm(o["extrait"]) == nc and j < i)
+                 or (absorbable and len(norm(o["extrait"])) > len(nc)))
         ]
         if containers:
             # on reverse la note dans l'extrait le plus englobant (pas de fusion en chaîne)
@@ -209,7 +215,7 @@ Si une phrase est bonne : verdict ok, regards très courts, suggestion null.
 
 def agent_assertions(client: Anthropic, corpus: str) -> ClaimsResult:
     """Mandat B : extraction des faits à vérifier avant antenne (pas de fact-checking)."""
-    system = """Tu extrais d'un script radio TOUTE assertion vérifiable : chiffres précis, noms propres, dates, lieux, faits attribués, citations.
+    system = """Tu extrais d'un script radio TOUTE assertion vérifiable : chiffres précis, noms propres, dates, lieux, faits attribués, citations — y compris les faits de CAUSALITÉ, de COMPARAISON et de TENDANCE, même sans chiffre ni nom propre (« ralentis par la guerre en Ukraine », « la première fois depuis dix ans », « les études convergent vers l'inverse »).
 Tu ne fais PAS de fact-checking : tu LISTES ce que le journaliste devrait vérifier avant antenne.
 Pour chaque assertion : l'extrait exact, sa zone (lancement/papier/qr selon l'en-tête de section), son type, et une note disant quoi vérifier précisément.
 REGROUPE : une seule assertion par passage. Si plusieurs éléments imbriqués dans la même affirmation (un nom propre dans un fait, un chiffre dans une date...) se vérifient d'un même geste, produis UNE assertion — type le plus englobant — dont la note liste tous les points à vérifier. Ne crée jamais deux assertions dont les extraits se recouvrent.
