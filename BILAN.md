@@ -38,7 +38,7 @@ Aider les journalistes radio à écrire des textes qui passent mieux à l'oreill
 - Anglicismes (55 termes + équivalents, formes conjuguées)
 - Jargon mesuré (taux de compréhension réels — données privées hors git, dégradation silencieuse sans elles)
 
-Le découpage traite les marques de respiration des journalistes (`/`, `//`, `...`, retours à la ligne) comme des frontières d'**unités de souffle** — jamais comme des fautes (`km/h` et barres internes préservés).
+Le découpage traite les marques de respiration des journalistes (`/`, `//`, `...`, retours à la ligne) comme des frontières d'**unités de souffle** — jamais comme des fautes (`km/h` et barres internes préservés). Les **repères de diffusion sonore** (« bob », « son », « extrait », numérotés ou non) sont écartés de l'analyse : ce sont des indications techniques, pas du texte lu (filtre ancré en début d'unité — « Son avenir est incertain » reste analysé).
 
 **Étage 2 — Pipeline d'agents** (agents.py, via la façade ai_analyzer.py) : reçoit le texte *déjà annoté* par l'étage 1.
 - Agent FORME : oralité phrase par phrase (regard rédac) + incarnation (VIF / FLOU / GRIS)
@@ -170,6 +170,7 @@ Diagramme complet : voir `architecture.mmd` (ouvrir dans mermaid.live).
 - RAG pgvector : 38 études indexées (2 537 passages), bucket privé, manifeste miroir de `bibliographie.md`, un passage max par étude, bonus tier A. Puis remplacement de la vectorisation à l'analyse par un **cache thématique précalculé** (requêtes constantes par thème + socle de thèmes toujours injecté) — la validation a posteriori du choix « bibliographie en dur » du POC.
 - **Résultat de gouvernance** : le texte du journaliste n'a qu'une seule destination possible, l'API Anthropic — aucun chemin de code sortant, y compris en mode dégradé (embeddings tiers réservés à l'indexation du corpus public, hors analyse).
 - **Recette citations VALIDÉE** (2 textes de test + analyse de contrôle) : attributions conformes, zéro source hors liste, zéro « des études montrent » anonyme. Elle a débusqué deux vrais défauts, corrigés des deux côtés : un liage seuil→sources manquant (le seuil de longueur cité sur Baddeley au lieu de Cowan/Caplan — corrigé v2 ET POC : chaque seuil affiche désormais ses seules sources citables) et un chiffre non traçable dans NOTRE base (le « 48 % des 55-65 ans » de la presse, remplacé par les 51 points d'écart de la note pays archivée). La traçabilité s'applique aussi à nous-mêmes.
+- **Repères de diffusion sonore** (ajout v2 pendant les premiers tests, rétroporté au POC) : « bob », « son », « extrait » (numérotés ou non) reconnus comme indications techniques — exclus des règles mécaniques ET consigne explicite aux agents de ne jamais les signaler.
 - **v2 complète et validée.** Étape suivante : le protocole POC en conditions réelles (5 journalistes, 30 papiers, 4 semaines). Points de veille : quota par session (bascule user_id/jour si contournement), gestion des comptes admin, accroches dramatisées type « séisme » absoutes par le mémo.
 
 ### Commits

@@ -118,6 +118,9 @@ Les « / », « // », « ... » et retours à la ligne sont des MARQUES DE RESP
 ce n'est JAMAIS une faute, ne les signale pas. Ne corrige ni l'orthographe ni les coquilles : \
 à l'antenne, ça ne s'entend pas. Seule exception : une coquille qui peut faire trébucher la \
 lecture à voix haute ou créer un contresens sonore.
+REPÈRES DE DIFFUSION : les indications « bob », « son », « extrait » (numérotées ou non) sont des \
+repères techniques de sons à diffuser — ce n'est pas du texte lu à l'antenne. Ne les analyse JAMAIS, \
+ne les signale JAMAIS ; considère simplement qu'un élément sonore s'insère à cet endroit.
 CITATIONS : appuie-toi sur les études fournies quand c'est pertinent (auteur/institution + année). \
 Ne cite JAMAIS une source hors liste."""
 

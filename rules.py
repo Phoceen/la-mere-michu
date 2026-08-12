@@ -43,6 +43,19 @@ def _syllables(word: str) -> int:
     return max(count, 1)
 
 
+# Repère de diffusion sonore : « BOB 1 », « Son : itw maire », « EXTRAIT 2 - ... »
+# Anchré en début d'unité : « Son avenir est incertain » ne matche pas.
+_BROADCAST_MARKER = re.compile(
+    r"^\s*(?:bob|son|extrait)s?\s*(?:n[°º]|no|#)?\s*\d*\s*(?:[:\-–—].*)?$",
+    re.IGNORECASE,
+)
+
+
+def is_broadcast_marker(sentence: str) -> bool:
+    """Indication de diffusion sonore — repère technique, jamais du texte lu."""
+    return bool(_BROADCAST_MARKER.match(sentence.strip()))
+
+
 def split_sentences(text: str) -> list[str]:
     """Découpe en unités de souffle, pas seulement en phrases grammaticales.
 
@@ -51,6 +64,10 @@ def split_sentences(text: str) -> list[str]:
     ces marques sont traitées comme des fins d'unité. Le texte original est
     préservé (rien n'est réécrit), seuls les / servant de séparateurs — jamais
     ceux collés comme dans « km/h » — sont consommés.
+
+    Les repères de diffusion sonore (« bob », « son », « extrait », numérotés
+    ou non) sont écartés : ils ne sont pas du texte à l'antenne et ne doivent
+    jamais être analysés.
     """
     raw = re.split(
         r"(?<=[.!?…])\s+"      # ponctuation classique (couvre aussi .. et ...)
@@ -58,7 +75,10 @@ def split_sentences(text: str) -> list[str]:
         r"|\s+/+\s*|\s*/+\s+", # / ou // entourés d'au moins un espace
         text.strip(),
     )
-    return [s.strip() for s in raw if s.strip() and re.search(r"\w", s)]
+    return [
+        s.strip() for s in raw
+        if s.strip() and re.search(r"\w", s) and not is_broadcast_marker(s)
+    ]
 
 
 # --- Règles enrichies par les études ---

@@ -90,6 +90,9 @@ et explique pourquoi, études scientifiques à l'appui.
   à l'antenne), sauf coquille qui fait trébucher la lecture à voix haute.
 - Le découpage en phrases côté serveur traite ces marques comme des frontières
   d'unités de souffle (en préservant « km/h » et autres barres internes).
+- Les repères de diffusion sonore — « bob », « son », « extrait », numérotés ou
+  non — sont des indications techniques, pas du texte lu : exclus des règles
+  mécaniques, et consigne aux agents de ne jamais les signaler.
 
 ## RAG sur la base de connaissances
 - Je téléverserai un corpus d'études scientifiques (PDF, ~30 documents : sciences
